@@ -116,33 +116,59 @@ const VocalNoteSummaryCard = ({ data, onViewFull }: { data: VocalNoteData; onVie
     className="group cursor-pointer w-full max-w-lg rounded-2xl bg-white overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     style={{ boxShadow: "0 2px 16px -4px rgba(79,70,229,0.10), 0 1px 3px rgba(0,0,0,0.04)" }}
   >
-    <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #4F46E5 0%, #818CF8 50%, #34D399 100%)" }} />
     <div className="p-5 space-y-4">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2.5">
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
             <BookOpen className="w-4 h-4 text-indigo-600" />
           </div>
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 leading-none mb-1">声乐笔记摘要</p>
-            <h3 className="text-base font-bold text-gray-900 group-hover:text-indigo-600 transition-colors leading-tight">{data.title}</h3>
-          </div>
+          <span className="text-sm font-semibold text-gray-700">声乐笔记摘要</span>
         </div>
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex-shrink-0">AI 分析</span>
+        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">AI 分析</span>
       </div>
 
-      {/* Stats */}
-      <div className="flex gap-2">
-        {data.stats.map(({ label, value, color }) => (
-          <div key={label} className="flex-1 flex flex-col items-center py-2.5 rounded-xl bg-gray-50 gap-1">
-            <span className="text-lg font-black text-gray-900">{value}</span>
-            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full text-white ${color}`}>{label}</span>
-          </div>
-        ))}
+      {/* Title + meta */}
+      <div>
+        <h3 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug">{data.title}</h3>
+        <p className="text-xs text-gray-400 mt-1">检测到 3 个关键乐句 · 7 个技巧标注 · 2026年4月1日</p>
       </div>
 
-      <div className="flex items-center justify-center gap-1.5 pt-1 border-t border-gray-100 text-indigo-600 text-xs font-semibold group-hover:gap-2.5 transition-all">
+      {/* Waveform + stats side by side */}
+      <div className="flex gap-4 items-stretch">
+        {/* Waveform */}
+        <div className="flex-1 rounded-2xl overflow-hidden bg-indigo-50/60 flex items-center justify-center py-4 px-3" style={{ minHeight: 100 }}>
+          <svg viewBox="0 0 200 60" className="w-full h-14" preserveAspectRatio="none">
+            {/* sine wave */}
+            <path d="M0,30 Q25,10 50,30 Q75,50 100,30 Q125,10 150,30 Q175,50 200,30"
+              fill="none" stroke="#C7D2FE" strokeWidth="2" />
+            {/* bars */}
+            {[12,20,28,36,44,52,60,68,76,84,92,100,108].map((x, i) => {
+              const h = [18,28,38,48,42,55,50,44,36,28,22,32,18][i];
+              return <rect key={i} x={x} y={30 - h / 2} width="6" height={h} rx="3" fill="#818CF8" opacity={0.7 + i * 0.02} />;
+            })}
+          </svg>
+        </div>
+
+        {/* Technique stats */}
+        <div className="flex flex-col gap-2 w-28 flex-shrink-0">
+          {[
+            { label: "混声", value: "4处", dot: "#4F46E5" },
+            { label: "颤音", value: "2处", dot: "#38BDF8" },
+            { label: "假声", value: "1处", dot: "#F59E0B" },
+          ].map(({ label, value, dot }) => (
+            <div key={label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: dot }} />
+              <div>
+                <p className="text-[10px] text-gray-400 leading-none">{label}</p>
+                <p className="text-sm font-bold text-gray-900 leading-tight">{value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-1.5 pt-2 border-t border-gray-100 text-indigo-600 text-xs font-semibold group-hover:gap-2.5 transition-all">
         查看完整分析 <ChevronRight className="w-3.5 h-3.5" />
       </div>
     </div>
@@ -158,10 +184,10 @@ const UploadGuideCard = () => (
     <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #6366F1 0%, #34D399 100%)" }} />
     <div className="p-5 space-y-4">
       <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center">
-          <Info className="w-3.5 h-3.5 text-indigo-600" />
+        <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+          <Info className="w-4 h-4 text-indigo-600" />
         </div>
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">唱功分析 · 上传指引</span>
+        <span className="text-sm font-semibold text-gray-700">唱功分析 · 上传指引</span>
       </div>
 
       <div>
@@ -220,43 +246,58 @@ const SingingAnalysisSummaryCard = ({ data, onViewFull }: { data: SingingAnalysi
     className="group cursor-pointer w-full max-w-lg rounded-2xl bg-white overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     style={{ boxShadow: "0 2px 16px -4px rgba(79,70,229,0.10), 0 1px 3px rgba(0,0,0,0.04)" }}
   >
-    <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #4F46E5 0%, #22C55E 100%)" }} />
     <div className="p-5 space-y-4">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2.5">
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
             <BarChart3 className="w-4 h-4 text-indigo-600" />
           </div>
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 leading-none mb-1">唱功分析摘要</p>
-            <h3 className="text-base font-bold text-gray-900 leading-tight">综合得分 <span className="text-indigo-600">{data.score}</span> 分</h3>
+          <span className="text-sm font-semibold text-gray-700">唱功分析摘要</span>
+        </div>
+        {/* Score ring */}
+        <div className="relative w-12 h-12 flex-shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#E0E7FF" strokeWidth="3" />
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#4F46E5" strokeWidth="3"
+              strokeDasharray={`${data.score * 87.96 / 100} 87.96`} strokeLinecap="round" />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-sm font-black text-indigo-600">{data.score}</span>
           </div>
         </div>
       </div>
 
-      {/* Dimension bars */}
-      <div className="space-y-2">
-        {data.details?.map((d) => (
-          <div key={d.label} className="flex items-center gap-3">
-            <span className="text-xs text-gray-500 w-8 flex-shrink-0">{d.label}</span>
-            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full rounded-full transition-all" style={{ width: `${d.value}%`, background: d.value >= 88 ? "#22C55E" : d.value >= 78 ? "#4F46E5" : "#F59E0B" }} />
+      {/* Dimension bars — 2 column grid */}
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+        {data.details?.map((d) => {
+          const barColor = d.value >= 88 ? "#22C55E" : d.value >= 78 ? "#38BDF8" : d.value >= 70 ? "#F59E0B" : "#818CF8";
+          return (
+            <div key={d.label}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-gray-600">{d.label}</span>
+                <span className="text-xs font-bold text-gray-800">{d.value}</span>
+              </div>
+              <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${d.value}%`, background: barColor }} />
+              </div>
             </div>
-            <span className="text-xs font-bold text-gray-700 w-6 text-right">{d.value}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Feedback */}
-      <div className="px-3 py-2.5 rounded-xl bg-gray-50 border-l-2 border-indigo-300">
+      <div className="px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100">
         <p className="text-xs text-gray-600 leading-relaxed">{data.feedback}</p>
       </div>
 
       {/* Suggestion */}
-      <div className="px-3 py-2.5 rounded-xl bg-indigo-50 border border-indigo-100 flex items-start gap-2">
-        <Zap className="w-3 h-3 text-indigo-500 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-indigo-700 leading-relaxed">{data.suggestion}</p>
+      <div className="px-3 py-2.5 rounded-xl bg-indigo-50 border border-indigo-100">
+        <div className="flex items-center gap-1.5 mb-1">
+          <Zap className="w-3 h-3 text-indigo-500" />
+          <span className="text-xs font-semibold text-indigo-600">下一步练习建议</span>
+        </div>
+        <p className="text-xs text-gray-600 leading-relaxed">{data.suggestion}</p>
       </div>
 
       <div className="flex items-center justify-center gap-1.5 pt-1 border-t border-gray-100 text-indigo-600 text-xs font-semibold group-hover:gap-2.5 transition-all">
