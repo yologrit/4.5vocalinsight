@@ -22,6 +22,16 @@ export const techniqueColors: Record<string, string> = {
   breath: "bg-accent text-accent-foreground border-border",
 };
 
+// Raw color values for gradient use
+export const techniqueRawColors: Record<string, string> = {
+  vibrato: "hsl(200,80%,50%)",
+  chest: "hsl(152,60%,42%)",
+  falsetto: "hsl(38,92%,50%)",
+  mixed: "hsl(245,58%,51%)",
+  glissando: "hsl(0,72%,51%)",
+  straight: "hsl(152,60%,42%)",
+};
+
 // Text colors applied directly to lyric characters covered by a technique
 export const techniqueTextColors: Record<string, string> = {
   vibrato: "text-[hsl(200,80%,50%)]",
@@ -29,7 +39,6 @@ export const techniqueTextColors: Record<string, string> = {
   falsetto: "text-[hsl(38,92%,50%)]",
   mixed: "text-[hsl(245,58%,51%)]",
   glissando: "text-[hsl(0,72%,51%)]",
-  straight: "text-[hsl(230,10%,48%)]",
 };
 
 export const techniqueLabels: Record<string, { cn: string; en: string }> = {
@@ -111,7 +120,7 @@ export const mockLyrics: LyricLine[] = [
     lyrics: "逆着光行走 任风吹雨打",
     techniques: [
       { text: "假声", type: "falsetto", startIdx: 0, endIdx: 5 },
-      { text: "直音", type: "straight", startIdx: 6, endIdx: 10 },
+      { text: "直音", type: "straight", startIdx: 5, endIdx: 11 },
     ],
     breathMark: true,
   },

@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   ArrowLeft, Play, Star, Music,
-  BookOpen, ChevronDown, Pause, Mail, Phone, ShieldCheck,
-  BarChart3, Check, Circle, CheckCircle2, Edit3, StickyNote, Plus, Trash2, X
+  BookOpen, Pause, Mail, ShieldCheck,
+  BarChart3, Check, Circle, CheckCircle2, Edit3, StickyNote, Trash2, X
 } from "lucide-react";
 import {
   Dialog,
@@ -356,84 +356,116 @@ const VocalNotesPage = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {/* Top bar */}
-      <div className="h-14 border-b border-border flex items-center px-4 gap-3 flex-shrink-0">
-        <button onClick={() => navigate("/coach")} className="p-1.5 rounded-lg hover:bg-accent transition-colors">
+      {/* Top bar — slim, glass-style */}
+      <div className="h-12 border-b border-border/60 flex items-center px-4 gap-3 flex-shrink-0 bg-background/80 backdrop-blur-md z-30">
+        <button
+          onClick={() => navigate("/coach")}
+          className="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-primary" />
-          <h1 className="text-sm font-semibold">声乐笔记 Vocal Notes</h1>
+        <div className="flex items-center gap-1.5">
+          <BookOpen className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs font-semibold tracking-wide text-foreground/80">声乐笔记</span>
+          <span className="text-[10px] text-muted-foreground/60 font-normal">Vocal Notes</span>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          <Button 
-            variant={isFavorited ? "secondary" : "ghost"} 
-            size="sm"
+        <div className="ml-auto">
+          <button
             onClick={handleFavorite}
-            className={isFavorited ? "text-yellow-500" : ""}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+              isFavorited
+                ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/30"
+                : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+            }`}
           >
-            <Star className={`w-4 h-4 ${isFavorited ? "fill-current" : ""}`} /> 收藏
-          </Button>
+            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-current" : ""}`} />
+            {isFavorited ? "已收藏" : "收藏"}
+          </button>
         </div>
       </div>
 
-      {/* Song info */}
-      <div className="px-6 py-4 border-b border-border bg-card flex-shrink-0">
-        <div className="flex items-center gap-4 max-w-4xl mx-auto">
-          <div className="w-14 h-14 rounded-xl bg-gradient-primary flex items-center justify-center flex-shrink-0">
-            <Music className="w-7 h-7 text-primary-foreground" />
+      {/* Song Hero — immersive gradient banner */}
+      <div className="relative flex-shrink-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/8 to-background pointer-events-none" />
+        <div className="relative flex items-center gap-4 px-6 py-4 max-w-4xl mx-auto">
+          {/* Album art */}
+          <div className="relative flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
+              <Music className="w-8 h-8 text-primary-foreground" />
+            </div>
+            {isPlaying && (
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-success flex items-center justify-center shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-success-foreground animate-pulse" />
+              </span>
+            )}
           </div>
-          <div>
-            <h2 className="font-semibold">起风了</h2>
-            <p className="text-sm text-muted-foreground">买辣椒也用券 · 声乐笔记</p>
+          {/* Song meta */}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold tracking-tight leading-tight">起风了</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">买辣椒也用券 · 声乐笔记分析</p>
+            <div className="flex items-center gap-2 mt-2">
+              {["混声", "颤音", "假声", "滑音"].map((tag) => (
+                <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium border border-primary/15">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
+          {/* Play button */}
           <button
             onClick={handlePlay}
-            className="ml-auto p-3 rounded-full bg-gradient-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-glow"
+            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ${
+              isPlaying
+                ? "bg-foreground text-background shadow-foreground/20"
+                : "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-primary/30 hover:shadow-primary/50 hover:scale-105"
+            }`}
           >
-            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
           </button>
         </div>
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       </div>
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left: Lyrics panel */}
-        <div 
+        <div
           ref={lyricsContainerRef}
           onClick={handleLyricsClick}
           onDragOver={(e) => e.preventDefault()}
-          className={`flex-1 overflow-y-auto px-6 py-6 relative ${editMode ? "cursor-crosshair bg-accent/5 transition-colors" : ""}`}
+          className={`flex-1 overflow-y-auto px-6 py-8 relative ${editMode ? "cursor-crosshair" : ""}`}
         >
-          <div className={`max-w-2xl mx-auto space-y-1 pr-32 relative ${editMode ? "pointer-events-none select-none" : ""}`}>
+          {editMode && (
+            <div className="absolute inset-0 bg-primary/[0.02] border-2 border-dashed border-primary/20 pointer-events-none z-10 rounded-none" />
+          )}
+          <div className={`max-w-xl mx-auto space-y-0.5 pr-28 relative ${editMode ? "pointer-events-none select-none" : ""}`}>
             {mockLyrics.map((line, i) => (
-              <div key={i} className="relative group">
-                <div className="flex items-center gap-2">
-                  {analysisMode && (
-                    <button
-                      onClick={() => handleAnalysisSelect(i)}
-                      className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                        selectedForAnalysis.includes(i)
-                          ? "bg-primary border-primary text-primary-foreground"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      {selectedForAnalysis.includes(i) && <Check className="w-3 h-3" />}
-                    </button>
-                  )}
-                  <div className="flex-1">
-                    <LyricLineItem
-                      line={line}
-                      index={i}
-                      isSelected={selectedLine === i}
-                      isPlaying={currentPlayLine === i}
-                      onSelect={handleLineClick}
-                      onTechniqueHover={handleTechniqueHover}
-                      onTechniquePin={handleTechniquePin}
-                      onBreathHover={handleBreathHover}
-                      onBreathPin={handleBreathPin}
-                    />
-                  </div>
+              <div key={i} className="relative group flex items-center gap-2">
+                {analysisMode && (
+                  <button
+                    onClick={() => handleAnalysisSelect(i)}
+                    className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                      selectedForAnalysis.includes(i)
+                        ? "bg-primary border-primary text-primary-foreground shadow-sm shadow-primary/30"
+                        : "border-border hover:border-primary/50 bg-background"
+                    }`}
+                  >
+                    {selectedForAnalysis.includes(i) && <Check className="w-3 h-3" />}
+                  </button>
+                )}
+                <div className="flex-1">
+                  <LyricLineItem
+                    line={line}
+                    index={i}
+                    isSelected={selectedLine === i}
+                    isPlaying={currentPlayLine === i}
+                    onSelect={handleLineClick}
+                    onTechniqueHover={handleTechniqueHover}
+                    onTechniquePin={handleTechniquePin}
+                    onBreathHover={handleBreathHover}
+                    onBreathPin={handleBreathPin}
+                  />
                 </div>
               </div>
             ))}
@@ -518,48 +550,39 @@ const VocalNotesPage = () => {
             })}
 
             {/* Key sections */}
-            <div className="mt-8 pt-6 border-t border-border">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <ChevronDown className="w-4 h-4" />
-                  重点难点片段
-                </h3>
+            <div className="mt-10 pt-6 border-t border-border/60">
+              {/* Section header */}
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-4 rounded-full bg-primary" />
+                  <h3 className="text-sm font-bold tracking-tight">重点难点片段</h3>
+                </div>
                 {!analysisMode ? (
-                  <Button 
-                    size="sm"
+                  <button
                     onClick={() => setAnalysisMode(true)}
-                    className="bg-gradient-primary text-primary-foreground shadow-glow text-xs font-bold hover:opacity-90 hover:bg-transparent hover:text-primary-foreground transition-all border-0"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold shadow-sm shadow-primary/30 hover:opacity-90 transition-all active:scale-95"
                   >
-                    <BarChart3 className="w-3.5 h-3.5 mr-1" /> 圈选歌词进行唱功分析
-                  </Button>
+                    <BarChart3 className="w-3 h-3" /> 圈选歌词·唱功分析
+                  </button>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
+                    <button
                       onClick={handleSelectAll}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-border text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                      <CheckCircle2 className="w-3 h-3" />
                       {selectedForAnalysis.length === mockLyrics.length ? "取消全选" : "全选"}
-                    </Button>
-                    <span className="text-xs text-muted-foreground">
-                      {selectedForAnalysis.length > 0 ? `已选 ${selectedForAnalysis.length} 句` : "请选择连续歌词"}
+                    </button>
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      {selectedForAnalysis.length > 0 ? `${selectedForAnalysis.length} 句` : "请选连续句"}
                     </span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => {
-                        setAnalysisMode(false);
-                        setSelectedForAnalysis([]);
-                      }}
+                    <button
+                      onClick={() => { setAnalysisMode(false); setSelectedForAnalysis([]); }}
+                      className="px-2.5 py-1.5 rounded-full border border-border text-xs text-muted-foreground hover:text-foreground transition-all"
                     >
                       取消
-                    </Button>
-                    <Button 
-                      size="sm"
-                      className="bg-gradient-primary text-primary-foreground shadow-glow text-xs"
+                    </button>
+                    <button
                       disabled={selectedForAnalysis.length === 0}
                       onClick={() => {
                         const selectedLyrics = selectedForAnalysis
@@ -568,32 +591,38 @@ const VocalNotesPage = () => {
                           .join(" | ");
                         navigate(`/coach?new=1&mode=singing-analysis&ref=qfl&lyrics=${encodeURIComponent(selectedLyrics)}`);
                       }}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40 transition-all active:scale-95"
                     >
-                      <BarChart3 className="w-3.5 h-3.5 mr-1" /> 进入分析
-                    </Button>
+                      <BarChart3 className="w-3 h-3" /> 进入分析
+                    </button>
                   </div>
                 )}
               </div>
-              <div className="grid gap-3">
+
+              {/* Highlight cards */}
+              <div className="grid gap-2.5">
                 {[
-                  { label: "最值得模仿", line: "心之所动 且就随缘去吧", reason: "混声过渡自然，颤音控制精准", lyrics: "心之所动 且就随缘去吧" },
-                  { label: "技巧最明显", line: "逆着光行走 任风吹雨打", reason: "假声→直音切换，情感对比强烈", lyrics: "逆着光行走 任风吹雨打" },
-                  { label: "适合练习", line: "不知不觉 已经翻山越岭", reason: "混声→假声转换，换声点清晰", lyrics: "不知不觉 已经翻山越岭" },
+                  { label: "最值得模仿", labelColor: "text-primary bg-primary/10 border-primary/20", line: "心之所动 且就随缘去吧", reason: "混声过渡自然，颤音控制精准", lyrics: "心之所动 且就随缘去吧" },
+                  { label: "技巧最明显", labelColor: "text-warning bg-warning/10 border-warning/20", line: "逆着光行走 任风吹雨打", reason: "假声→直音切换，情感对比强烈", lyrics: "逆着光行走 任风吹雨打" },
+                  { label: "适合练习", labelColor: "text-success bg-success/10 border-success/20", line: "不知不觉 已经翻山越岭", reason: "混声→假声转换，换声点清晰", lyrics: "不知不觉 已经翻山越岭" },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/20 transition-colors cursor-pointer">
-                    <span className="text-xs font-medium text-primary bg-accent px-2 py-1 rounded-md flex-shrink-0">{item.label}</span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{item.line}</p>
-                      <p className="text-xs text-muted-foreground">{item.reason}</p>
+                  <div
+                    key={i}
+                    className="group flex items-center gap-3 p-3.5 rounded-2xl border border-border/60 bg-card hover:border-primary/25 hover:bg-accent/30 transition-all cursor-pointer"
+                  >
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border flex-shrink-0 ${item.labelColor}`}>
+                      {item.label}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold truncate leading-tight">{item.line}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{item.reason}</p>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="ml-auto flex-shrink-0 text-xs"
+                    <button
                       onClick={() => navigate(`/coach?new=1&mode=singing-analysis&ref=qfl&lyrics=${encodeURIComponent(item.lyrics)}`)}
+                      className="flex-shrink-0 text-[11px] font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity px-2.5 py-1 rounded-full hover:bg-primary/10"
                     >
-                      练这一句
-                    </Button>
+                      练这句 →
+                    </button>
                   </div>
                 ))}
               </div>
@@ -602,7 +631,12 @@ const VocalNotesPage = () => {
         </div>
 
         {/* Right: Annotation panel */}
-        <div className="w-80 lg:w-96 border-l border-border bg-card overflow-y-auto px-6 py-6 hidden md:block">
+        <div className="w-72 lg:w-80 border-l border-border/60 bg-card/50 backdrop-blur-sm overflow-y-auto px-5 py-6 hidden md:flex flex-col gap-0">
+          {/* Panel header */}
+          <div className="flex items-center gap-2 mb-5 pb-4 border-b border-border/50">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-soft" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">技巧注解</span>
+          </div>
           <AnnotationPanel
             activeTechnique={activeTech}
             selectedLine={selectedLine}
@@ -612,169 +646,159 @@ const VocalNotesPage = () => {
           />
         </div>
 
-        {/* Floating Action Button for Edit Mode */}
-        <div className="absolute bottom-8 right-8 z-50 flex flex-col items-end gap-3">
-          {/* Tool Selector (Only in Edit Mode) */}
+        {/* Floating Action Button for Edit Mode — left side */}
+        <div className="absolute bottom-6 left-6 z-50 flex flex-col items-start gap-2.5">
           {editMode && (
-            <div className="flex flex-col gap-2 mb-2 animate-in slide-in-from-bottom-4 duration-300">
-              <Button
-                size="sm"
-                variant="destructive"
-                className="rounded-full shadow-md gap-2 h-9 mb-2"
-                onClick={clearAllAnnotations}
-              >
-                <Trash2 className="w-4 h-4" />
-                <span className="text-xs">清空</span>
-              </Button>
-
-              {/* Color Picker */}
-              <div className="bg-card/95 backdrop-blur-xl border border-border/60 rounded-2xl p-3.5 flex flex-col gap-3 shadow-2xl mb-2 animate-in slide-in-from-right-4 duration-300">
-                <div className="flex items-center justify-between px-0.5">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">笔触颜色</span>
-                </div>
-                <div className="flex gap-2.5 items-center">
+            <div className="flex flex-col items-start gap-2 animate-in slide-in-from-bottom-4 duration-300">
+              {/* Color + tool panel */}
+              <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl p-3 shadow-2xl flex flex-col gap-3">
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest px-0.5">颜色</span>
+                <div className="flex gap-2 items-center">
                   {availableColors.map((color) => (
                     <button
                       key={color.value}
                       onClick={() => setActiveColor(color.value)}
-                      className="relative flex flex-col items-center gap-1 group/color"
                       title={color.name}
+                      className={`w-7 h-7 rounded-full transition-all flex items-center justify-center ${color.bg} ${
+                        activeColor === color.value
+                          ? "ring-2 ring-offset-2 ring-offset-card ring-primary scale-110"
+                          : "hover:scale-110 opacity-70 hover:opacity-100"
+                      }`}
                     >
-                      <div className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ring-offset-2 ring-offset-card ${
-                        activeColor === color.value 
-                          ? "ring-2 ring-primary scale-110" 
-                          : "hover:scale-110 ring-1 ring-transparent hover:ring-border"
-                      } ${color.bg}`}>
-                        {activeColor === color.value && <Check className="w-3.5 h-3.5 text-white drop-shadow-sm" />}
-                      </div>
-                      <span className={`text-[9px] transition-colors ${activeColor === color.value ? 'text-foreground font-semibold' : 'text-muted-foreground group-hover/color:text-foreground'}`}>
-                        {color.name}
-                      </span>
+                      {activeColor === color.value && <Check className="w-3 h-3 text-white drop-shadow" />}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-1.5">
+                  {[
+                    { id: "text", icon: <StickyNote className="w-3.5 h-3.5" />, label: "文字" },
+                    { id: "circle", icon: <Circle className="w-3.5 h-3.5" />, label: "圈选" },
+                  ].map((tool) => (
+                    <button
+                      key={tool.id}
+                      onClick={() => setActiveTool(tool.id as "text" | "circle")}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                        activeTool === tool.id
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-accent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {tool.icon} {tool.label}
                     </button>
                   ))}
                 </div>
               </div>
-
-              {[
-                { id: "text", icon: <StickyNote className="w-4 h-4" />, label: "文字" },
-                { id: "circle", icon: <Circle className="w-4 h-4" />, label: "圈选" },
-              ].map((tool) => (
-                <Button
-                  key={tool.id}
-                  size="sm"
-                  variant={activeTool === tool.id ? "default" : "secondary"}
-                  className="rounded-full shadow-md gap-2 h-9"
-                  onClick={() => setActiveTool(tool.id as "text" | "circle")}
-                >
-                  {tool.icon}
-                  <span className="text-xs">{tool.label}</span>
-                </Button>
-              ))}
+              <button
+                onClick={clearAllAnnotations}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20 text-xs font-medium hover:bg-destructive/20 transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> 清空
+              </button>
             </div>
           )}
 
-          {/* Tooltip logic updated */}
-          {!editMode ? (
-            <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-xs font-bold shadow-lg animate-bounce">
-              点击开启编辑模式，在笔记上涂涂改改 ✍️
-            </div>
-          ) : (
-            <div className="bg-success text-success-foreground px-4 py-2 rounded-full text-xs font-bold shadow-lg">
-              正在编辑：点击页面添加{activeTool === "text" ? "文字" : "圈选"}
-            </div>
-          )}
-          
-          <Button
-            size="lg"
+          {/* Status pill */}
+          <div className={`px-3 py-1.5 rounded-full text-xs font-semibold shadow-md transition-all ${
+            editMode
+              ? "bg-success text-success-foreground"
+              : "bg-foreground/90 text-background"
+          }`}>
+            {editMode ? `做笔记中 · ${activeTool === "text" ? "文字" : "圈选"}` : "点击开启做笔记 ✍️"}
+          </div>
+
+          {/* Main FAB */}
+          <button
             onClick={() => {
               setEditMode(!editMode);
               setAnalysisMode(false);
-              if (!editMode) {
-                toast.info("进入编辑模式：选择工具并点击页面添加标注");
-              }
+              if (!editMode) toast.info("进入编辑模式：选择工具并点击页面添加标注");
             }}
-            className={`rounded-full w-14 h-14 shadow-2xl transition-all ${editMode ? "bg-success hover:bg-success/90 rotate-90" : "bg-primary hover:bg-primary/90"}`}
+            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 ${
+              editMode
+                ? "bg-success text-success-foreground rotate-12 shadow-success/30"
+                : "bg-primary text-primary-foreground shadow-primary/30 hover:scale-105"
+            }`}
           >
             {editMode ? <Check className="w-6 h-6" /> : <Edit3 className="w-6 h-6" />}
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Note Dialog */}
       <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
-        <DialogContent className="sm:max-w-[360px]">
+        <DialogContent className="sm:max-w-[340px] rounded-2xl border-border/60">
           <DialogHeader>
-            <DialogTitle className="text-sm font-semibold flex items-center gap-2">
-              <StickyNote className="w-4 h-4 text-primary" />
-              添加个人笔记
+            <DialogTitle className="text-sm font-bold flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                <StickyNote className="w-3.5 h-3.5 text-primary" />
+              </div>
+              添加批注
             </DialogTitle>
-            <DialogDescription className="text-xs">
-              在点击位置添加你的心得、感悟或练习提醒。
+            <DialogDescription className="text-xs text-muted-foreground">
+              在此处记录你的心得或练习提醒
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+          <div className="py-3">
             <Textarea
               value={currentNoteText}
               onChange={(e) => setCurrentNoteText(e.target.value)}
-              placeholder="输入你的笔记内容..."
-              className="min-h-[100px] text-sm"
+              placeholder="输入笔记内容..."
+              className="min-h-[90px] text-sm resize-none rounded-xl border-border/60 focus:border-primary/40 bg-accent/30"
               autoFocus
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" size="sm" onClick={() => {
-              setNoteDialogOpen(false);
-              setPendingCoords(null);
-            }}>取消</Button>
-            <Button size="sm" onClick={saveNote}>保存笔记</Button>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => { setNoteDialogOpen(false); setPendingCoords(null); }}>取消</Button>
+            <Button size="sm" className="rounded-xl bg-primary" onClick={saveNote}>保存</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Register Dialog */}
       <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
-        <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl">
-          <div className="bg-gradient-primary p-6 text-primary-foreground">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                <ShieldCheck className="w-6 h-6" />
-                欢迎加入 VocalInsight
-              </DialogTitle>
-              <DialogDescription className="text-primary-foreground/80">
-                登录后即可永久保存您的声乐笔记和技巧心得
-              </DialogDescription>
-            </DialogHeader>
+        <DialogContent className="sm:max-w-[380px] p-0 overflow-hidden rounded-2xl border-border/60 shadow-2xl">
+          {/* Header */}
+          <div className="relative px-6 pt-6 pb-5 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold">欢迎加入 VocalInsight</h2>
+                <p className="text-xs text-muted-foreground">登录后永久保存你的声乐笔记</p>
+              </div>
+            </div>
           </div>
-          
-          <div className="p-6 space-y-5 bg-card">
-            <div className="space-y-2">
-              <Label htmlFor="account" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+
+          <div className="px-6 pb-6 space-y-4 bg-card">
+            <div className="space-y-1.5">
+              <Label htmlFor="account" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <Mail className="w-3 h-3" /> 手机号 / 邮箱
               </Label>
-              <Input 
-                id="account" 
-                placeholder="请输入手机号或邮箱" 
+              <Input
+                id="account"
+                placeholder="请输入手机号或邮箱"
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                className="h-11 bg-accent/50 border-transparent focus:border-primary/30 transition-all"
+                className="h-10 rounded-xl bg-accent/40 border-border/50 focus:border-primary/40 text-sm"
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="code" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+
+            <div className="space-y-1.5">
+              <Label htmlFor="code" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <ShieldCheck className="w-3 h-3" /> 验证码
               </Label>
               <div className="flex gap-2">
-                <Input 
-                  id="code" 
-                  placeholder="6位验证码" 
+                <Input
+                  id="code"
+                  placeholder="6 位验证码"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  className="h-11 bg-accent/50 border-transparent focus:border-primary/30 transition-all"
+                  className="h-10 rounded-xl bg-accent/40 border-border/50 focus:border-primary/40 text-sm"
                 />
-                <Button 
-                  variant="outline" 
-                  className="h-11 px-4 min-w-[100px] font-medium border-primary/20 text-primary hover:bg-primary/5"
+                <Button
+                  variant="outline"
+                  className="h-10 px-3 min-w-[90px] rounded-xl text-xs font-semibold border-primary/25 text-primary hover:bg-primary/5"
                   onClick={handleSendCode}
                   disabled={countdown > 0}
                 >
@@ -783,16 +807,19 @@ const VocalNotesPage = () => {
               </div>
             </div>
 
-            <Button 
-              className="w-full h-12 bg-gradient-primary text-primary-foreground font-bold text-base shadow-glow hover:opacity-90 transition-all"
+            <Button
+              className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-sm shadow-primary/20 hover:opacity-90 transition-all"
               onClick={handleLogin}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "正在登录..." : "立即登录 / 注册"}
+              {isSubmitting ? "登录中..." : "立即登录 / 注册"}
             </Button>
-            
-            <p className="text-[10px] text-center text-muted-foreground px-4 leading-relaxed">
-              登录即代表您同意 <span className="text-primary cursor-pointer hover:underline">用户协议</span> 和 <span className="text-primary cursor-pointer hover:underline">隐私政策</span>
+
+            <p className="text-[10px] text-center text-muted-foreground leading-relaxed">
+              登录即代表您同意{" "}
+              <span className="text-primary cursor-pointer hover:underline">用户协议</span>
+              {" "}和{" "}
+              <span className="text-primary cursor-pointer hover:underline">隐私政策</span>
             </p>
           </div>
         </DialogContent>
