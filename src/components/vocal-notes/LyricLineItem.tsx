@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import { LyricLine, techniqueColors, techniqueTextColors } from "./types";
+import { LyricLine, techniqueColors, techniqueTextColors, techniqueRawColors } from "./types";
 
 interface LyricLineItemProps {
   line: LyricLine;
@@ -20,18 +20,18 @@ interface LyricLineItemProps {
  */
 const renderColoredLyrics = (line: LyricLine, isPlaying: boolean) => {
   const chars = [...line.lyrics];
+  const nonBreathTechs = line.techniques.filter(t => t.type !== "breath");
 
-  // Build per-char technique map
+  // Build per-char technique map (last writer wins for overlapping)
   const charTechMap: (string | null)[] = chars.map(() => null);
-  line.techniques.forEach((tech) => {
-    if (tech.type === "breath") return;
+  nonBreathTechs.forEach((tech) => {
     for (let i = tech.startIdx; i < Math.min(tech.endIdx, chars.length); i++) {
       charTechMap[i] = tech.type;
     }
   });
 
-  // Detect transition zones: where technique changes between adjacent chars
-  // For transition chars, store [fromType, toType]
+  // Detect adjacent technique transitions: only mark chars at the boundary
+  // A transition exists when two techniques are adjacent (endIdx of one == startIdx of next, or within 1 char)
   type CharInfo =
     | { kind: "single"; type: string | null }
     | { kind: "gradient"; from: string; to: string };
@@ -41,26 +41,32 @@ const renderColoredLyrics = (line: LyricLine, isPlaying: boolean) => {
     type: charTechMap[i],
   }));
 
-  // Check for overlapping techniques on same char positions (transition markers)
-  // e.g., line 7 has mixed and vibrato both covering indices 5-9
-  // Also detect adjacent technique boundaries for gradient
-  for (let i = 1; i < chars.length; i++) {
-    const prev = charTechMap[i - 1];
-    const curr = charTechMap[i];
-    if (prev && curr && prev !== curr) {
-      // Mark the boundary char as gradient
-      charInfos[i] = { kind: "gradient", from: prev, to: curr };
+  // Find adjacent/overlapping technique pairs and mark their full ranges as gradient
+  const sortedTechs = [...nonBreathTechs].sort((a, b) => a.startIdx - b.startIdx);
+  for (let t = 0; t < sortedTechs.length - 1; t++) {
+    const curr = sortedTechs[t];
+    const next = sortedTechs[t + 1];
+    // Only apply gradient if they are directly adjacent or overlapping (no gap)
+    if (next.startIdx - curr.endIdx <= 0) {
+      const rangeStart = curr.startIdx;
+      // If next technique has no text color, gradient only covers curr range
+      const nextHasColor = !!techniqueTextColors[next.type];
+      const rangeEnd = nextHasColor
+        ? Math.min(chars.length - 1, next.endIdx - 1)
+        : Math.min(chars.length - 1, curr.endIdx - 1);
+      for (let i = rangeStart; i <= rangeEnd; i++) {
+        charInfos[i] = { kind: "gradient", from: curr.type, to: next.type };
+      }
     }
   }
 
   // Group consecutive chars with same rendering
   const segments: { text: string; info: CharInfo }[] = [];
+  if (chars.length === 0) return [];
   let current = { text: chars[0], info: charInfos[0] };
 
   const infoKey = (info: CharInfo) =>
-    info.kind === "single"
-      ? `s:${info.type}`
-      : `g:${info.from}-${info.to}`;
+    info.kind === "single" ? `s:${info.type}` : `g:${info.from}-${info.to}`;
 
   for (let i = 1; i < chars.length; i++) {
     if (infoKey(charInfos[i]) === infoKey(current.info)) {
@@ -74,9 +80,8 @@ const renderColoredLyrics = (line: LyricLine, isPlaying: boolean) => {
 
   return segments.map((seg, i) => {
     if (seg.info.kind === "gradient") {
-      // CSS gradient text for transition
-      const fromColor = techniqueTextColors[seg.info.from]?.replace("text-[", "").replace("]", "") || "currentColor";
-      const toColor = techniqueTextColors[seg.info.to]?.replace("text-[", "").replace("]", "") || "currentColor";
+      const fromColor = techniqueRawColors[seg.info.from] ?? "currentColor";
+      const toColor = techniqueRawColors[seg.info.to] ?? "currentColor";
       return (
         <span
           key={i}
@@ -127,17 +132,17 @@ const LyricLineItem = ({
     <button
       ref={ref}
       onClick={() => onSelect(index)}
-      className={`w-full text-center px-4 py-3 rounded-xl transition-all duration-300 ${
+      className={`w-full text-center px-4 py-3.5 rounded-2xl transition-all duration-300 group/line ${
         isSelected
-          ? "bg-accent border border-primary/20"
+          ? "bg-primary/8 border border-primary/25 shadow-sm shadow-primary/10"
           : isPlaying
-          ? "bg-accent/50"
-          : "hover:bg-accent/30"
-      } ${isPlaying ? "scale-[1.03]" : ""}`}
+          ? "bg-accent/60 border border-transparent"
+          : "border border-transparent hover:bg-accent/40 hover:border-border/40"
+      } ${isPlaying ? "scale-[1.04]" : ""}`}
     >
       <div className="flex flex-col items-center">
         {/* Technique tags row */}
-        <div className="relative flex items-end min-h-[28px] mb-4 w-full justify-center">
+        <div className="relative flex items-end min-h-[28px] mb-6 w-full justify-center">
           <div className="relative" style={{ width: `${line.lyrics.length * 1.05}em` }}>
             {(() => {
               // Group adjacent/overlapping techniques
@@ -178,7 +183,7 @@ const LyricLineItem = ({
                         e.stopPropagation();
                         onTechniquePin(tech.type);
                       }}
-                      className={`absolute inline-flex items-center px-1.5 py-0 rounded text-[10px] font-semibold border cursor-pointer transition-all hover:scale-105 hover:shadow-sm ${techniqueColors[tech.type]}`}
+                      className={`absolute inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border cursor-pointer transition-all hover:scale-105 hover:shadow-md ${techniqueColors[tech.type]}`}
                       style={{ left: `${offsetEm}em` }}
                     >
                       {tech.text}
@@ -192,7 +197,7 @@ const LyricLineItem = ({
                   const transitionKey = `${fromType}-${toType}`;
                   
                   return (
-                    <span
+                    <div
                       key={gIdx}
                       onMouseEnter={() => onTechniqueHover(transitionKey)}
                       onMouseLeave={() => onTechniqueHover(null)}
@@ -200,16 +205,24 @@ const LyricLineItem = ({
                         e.stopPropagation();
                         onTechniquePin(transitionKey);
                       }}
-                      className="absolute inline-flex items-center px-1.5 py-0 rounded text-[10px] font-semibold border cursor-pointer transition-all hover:scale-105 hover:shadow-sm bg-white"
-                      style={{ 
+                      className="absolute inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all hover:scale-105 hover:shadow-md"
+                      style={{
                         left: `${offsetEm}em`,
-                        background: `linear-gradient(90deg, var(--${fromType}-bg, #f3f4f6), var(--${toType}-bg, #f3f4f6))`,
-                        borderColor: `var(--${fromType}-border, #d1d5db)`,
-                        color: '#374151'
+                        background: `linear-gradient(90deg, color-mix(in srgb, ${techniqueRawColors[fromType] ?? "#888"} 20%, transparent), color-mix(in srgb, ${techniqueRawColors[toType] ?? "#888"} 20%, transparent))`,
+                        border: `1px solid color-mix(in srgb, ${techniqueRawColors[fromType] ?? "#888"} 40%, transparent)`,
                       }}
                     >
-                      {mergedText}
-                    </span>
+                      <span
+                        style={{
+                          backgroundImage: `linear-gradient(90deg, ${techniqueRawColors[fromType] ?? "#888"}, ${techniqueRawColors[toType] ?? "#888"})`,
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          backgroundClip: "text",
+                        }}
+                      >
+                        {mergedText}
+                      </span>
+                    </div>
                   );
                 }
               });
@@ -220,8 +233,8 @@ const LyricLineItem = ({
         {/* Lyrics row with colored characters + breath mark */}
         <div className="flex items-baseline gap-0 justify-center">
           <p
-            className={`leading-relaxed tracking-wider transition-all duration-300 ${
-              isPlaying ? "text-lg font-bold" : "text-base"
+            className={`leading-relaxed tracking-widest transition-all duration-300 ${
+              isPlaying ? "text-lg font-bold" : "text-base font-medium"
             }`}
           >
             {renderColoredLyrics(line, isPlaying)}
@@ -234,7 +247,7 @@ const LyricLineItem = ({
                 e.stopPropagation();
                 onBreathPin();
               }}
-              className="relative -top-2 ml-0.5 text-primary text-base font-semibold select-none cursor-pointer hover:opacity-100 opacity-70 transition-opacity"
+              className="relative -top-2.5 ml-1 text-primary/60 text-sm font-bold select-none cursor-pointer hover:text-primary transition-colors"
               title="换气 Breath"
             >
               ᐯ
