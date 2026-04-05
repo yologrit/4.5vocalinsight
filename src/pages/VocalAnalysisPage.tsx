@@ -62,16 +62,17 @@ import { Label } from "@/components/ui/label";
 import { mockAnalysisData, AnalysisLyricLine, AnalysisTechnique } from "@/components/vocal-analysis/types";
 import { toast } from "sonner";
 
+// Design System compliant technique colors
 const techniqueColors: Record<string, string> = {
-  vibrato: "bg-info/15 text-info border-info/30",
-  chest: "bg-success/15 text-success border-success/30",
-  falsetto: "bg-warning/15 text-warning border-warning/30",
-  mixed: "bg-primary/15 text-primary border-primary/30",
+  vibrato: "bg-[#EDE9FE] text-[#A78BFA] border-[#A78BFA]/30",     // 颤音 - 紫色
+  chest: "bg-[#FFEDD5] text-[#FB923C] border-[#FB923C]/30",       // 真声 - 橙色
+  falsetto: "bg-[#D1FAE5] text-[#34D399] border-[#34D399]/30",    // 假声 - 绿色
+  mixed: "bg-[#EEF2FF] text-[#818CF8] border-[#818CF8]/30",       // 混声 - 靛蓝
   glissando: "bg-destructive/15 text-destructive border-destructive/30",
   straight: "bg-muted-foreground/15 text-muted-foreground border-muted-foreground/30",
   breath: "bg-accent text-accent-foreground border-border",
-  "falsetto-straight": "bg-gradient-to-r from-warning/15 to-muted-foreground/15 text-foreground border-border/50",
-  "mixed-falsetto": "bg-gradient-to-r from-primary/15 to-warning/15 text-foreground border-border/50",
+  "falsetto-straight": "bg-gradient-to-r from-[#D1FAE5] to-muted-foreground/15 text-foreground border-border/50",
+  "mixed-falsetto": "bg-gradient-to-r from-[#EEF2FF] to-[#D1FAE5] text-foreground border-border/50",
 };
 
 const getAccuracyBaseColor = (accuracy: number) => {
@@ -101,7 +102,7 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
       const playheadX = width * 0.3; // Playhead at 30% from left
 
       // Draw grid lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.lineWidth = 1;
       for (let i = 0; i <= 5; i++) {
         const y = (height / 5) * i;
@@ -114,10 +115,10 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
       // Draw pitch lines
       data.forEach((line) => {
         const lineDuration = line.endTime - line.startTime;
-        
-        // Original Pitch (Gray)
+
+        // Original Pitch (Muted Gray)
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
         ctx.lineWidth = 3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -153,9 +154,9 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
 
           const origPitch = line.originalPitch[i];
           const isCorrect = Math.abs(pitch - origPitch) < 2.0;
-          
+
           ctx.beginPath();
-          ctx.strokeStyle = isCorrect ? 'rgb(168, 85, 247)' : '#ef4444'; // Purple (primary) for correct
+          ctx.strokeStyle = isCorrect ? '#818CF8' : '#EF4444'; // Design system: mixed voice indigo for correct, destructive red for incorrect
           ctx.lineWidth = 4;
           ctx.lineCap = 'round';
           ctx.moveTo(x1, y1);
@@ -165,7 +166,7 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
       });
 
       // Draw Playhead
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.strokeStyle = 'rgba(79, 70, 229, 0.6)'; // Primary color
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
@@ -173,11 +174,11 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
       ctx.lineTo(playheadX, height);
       ctx.stroke();
       ctx.setLineDash([]);
-      
+
       // Draw playhead indicator
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#4F46E5'; // Primary color
       ctx.shadowBlur = 10;
-      ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+      ctx.shadowColor = 'rgba(79, 70, 229, 0.4)';
       ctx.beginPath();
       ctx.arc(playheadX, height / 2, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -195,26 +196,26 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
   }, [currentTime, data]);
 
   return (
-    <div ref={containerRef} className="w-full h-44 bg-zinc-950 rounded-2xl border border-border relative overflow-hidden shadow-lg">
-      <canvas 
-        ref={canvasRef} 
-        width={1200} 
-        height={176} 
+    <div ref={containerRef} className="w-full h-44 bg-card rounded-2xl border border-border relative overflow-hidden shadow-lg">
+      <canvas
+        ref={canvasRef}
+        width={1200}
+        height={176}
         className="w-full h-full"
       />
       <div className="absolute top-3 left-4 flex gap-4">
         <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
-          <span className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Ref Pitch</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Ref Pitch</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
-          <span className="text-[10px] text-white/30 uppercase tracking-widest font-bold">User Pitch</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-sm" />
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">User Pitch</span>
         </div>
       </div>
       
       {/* Decorative scanline effect */}
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_2px,3px_100%] opacity-20" />
+      <div className="absolute inset-0 pointer-events-none opacity-0" />
     </div>
   );
 };
@@ -454,22 +455,20 @@ const VocalAnalysisPage = () => {
   };
 
   const getAccuracyColor = (accuracy: number, alpha?: number) => {
-    // Interpolate between Red (30%), Orange (70%), Green (90%)
+    // Design system score semantic colors
     let r, g, b;
     if (accuracy >= 90) {
-      r = 34; g = 197; b = 94; // text-green-500
-    } else if (accuracy >= 70) {
-      const ratio = (accuracy - 70) / 20;
-      r = Math.round(249 + (34 - 249) * ratio);
-      g = Math.round(115 + (197 - 115) * ratio);
-      b = Math.round(22 + (94 - 22) * ratio);
-    } else if (accuracy >= 30) {
-      const ratio = (accuracy - 30) / 40;
-      r = Math.round(239 + (249 - 239) * ratio);
-      g = Math.round(68 + (115 - 68) * ratio);
-      b = Math.round(68 + (22 - 68) * ratio);
+      // Excellent: #22C55E
+      r = 34; g = 197; b = 94;
+    } else if (accuracy >= 75) {
+      // Good: #84CC16
+      r = 132; g = 204; b = 22;
+    } else if (accuracy >= 60) {
+      // Fair: #EAB308
+      r = 234; g = 179; b = 8;
     } else {
-      r = 239; g = 68; b = 68; // text-red-500
+      // Poor: #EF4444
+      r = 239; g = 68; b = 68;
     }
 
     return alpha !== undefined ? `rgba(${r}, ${g}, ${b}, ${alpha})` : `rgb(${r}, ${g}, ${b})`;
@@ -1079,9 +1078,9 @@ const VocalAnalysisPage = () => {
         </div>
 
         {/* Practice Suggestions Section - Gamified & Optimized */}
-        <div ref={practiceRef} className="h-full bg-[#0a0a0c] p-6 space-y-8 snap-start shrink-0 overflow-y-auto relative">
+        <div ref={practiceRef} className="h-full bg-background p-6 space-y-8 snap-start shrink-0 overflow-y-auto relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #fff 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+          <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, hsl(var(--primary)) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
           
           {/* Visual Bridge Header */}
           <div className="max-w-5xl mx-auto pt-4 pb-2 relative z-10">
@@ -1090,13 +1089,13 @@ const VocalAnalysisPage = () => {
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-px bg-primary/60" />
-                  <Trophy className="w-6 h-6 text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
+                  <Trophy className="w-6 h-6 text-yellow-500 drop-shadow-sm" />
                   <Badge variant="outline" className="bg-primary/20 text-primary-foreground border-primary/50 text-xs uppercase tracking-[0.4em] px-8 py-2 rounded-full font-black shadow-glow-sm">
                     LEVEL UP PHASE
                   </Badge>
                   <div className="w-8 h-px bg-primary/60" />
                 </div>
-                <span className="text-xs font-black text-zinc-200 uppercase tracking-widest">开启针对性进阶训练 · 突破自我极限</span>
+                <span className="text-xs font-black text-foreground uppercase tracking-widest">开启针对性进阶训练 · 突破自我极限</span>
               </div>
               <div className="h-px flex-1 bg-gradient-to-l from-transparent via-primary/50 to-transparent" />
             </div>
@@ -1106,37 +1105,37 @@ const VocalAnalysisPage = () => {
             {/* Gamified Roadmap & Suggestion */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left: Main Suggestion (Gamified Card) */}
-              <div className="lg:col-span-7 p-6 rounded-[2.5rem] bg-zinc-900/80 border border-zinc-700/60 shadow-2xl relative overflow-hidden group backdrop-blur-md">
+              <div className="lg:col-span-7 p-6 rounded-[2.5rem] bg-card border border-border shadow-xl relative overflow-hidden group">
                 {/* Animated Background Gradients */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full -mr-48 -mt-48 blur-[100px] group-hover:bg-primary/30 transition-all duration-1000" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full -ml-32 -mb-32 blur-[80px]" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full -mr-48 -mt-48 blur-[100px] group-hover:bg-primary/10 transition-all duration-1000" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full -ml-32 -mb-32 blur-[80px]" />
                 
                 <div className="relative z-10 space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-glow relative">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg relative">
                         <Zap className="w-7 h-7 text-white" />
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full border-2 border-zinc-900 flex items-center justify-center">
-                          <span className="text-[8px] font-black text-zinc-900">!</span>
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full border-2 border-background flex items-center justify-center">
+                          <span className="text-[8px] font-black text-background">!</span>
                         </div>
                       </div>
                       <div>
-                        <h3 className="text-2xl font-black tracking-tight text-white italic">当前主线任务</h3>
+                        <h3 className="text-2xl font-black tracking-tight text-foreground italic">当前主线任务</h3>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px] font-black px-2 py-0">URGENT</Badge>
-                          <p className="text-xs text-zinc-200 font-bold uppercase tracking-widest">Priority: Critical</p>
+                          <Badge className="bg-red-500/20 text-red-600 border-red-500/30 text-[10px] font-black px-2 py-0">URGENT</Badge>
+                          <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Priority: Critical</p>
                         </div>
                       </div>
                     </div>
-                    <div className="px-4 py-2 rounded-2xl bg-white/5 border border-zinc-600/50 flex items-center gap-2 backdrop-blur-md">
-                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
-                      <span className="text-xs font-black text-white uppercase tracking-widest">进行中</span>
+                    <div className="px-4 py-2 rounded-2xl bg-accent border border-border flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-sm" />
+                      <span className="text-xs font-black text-foreground uppercase tracking-widest">进行中</span>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-5">
-                    <div className="p-6 rounded-[2rem] bg-white/5 border border-zinc-700/50 backdrop-blur-sm relative overflow-hidden group/diag">
-                      <div className="absolute top-0 left-0 w-1.5 h-full bg-primary shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
+                    <div className="p-6 rounded-[2rem] bg-accent/50 border border-border relative overflow-hidden group/diag">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-primary shadow-sm" />
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-[0.2em]">
@@ -1145,14 +1144,14 @@ const VocalAnalysisPage = () => {
                           </div>
                           <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">AI Analysis</Badge>
                         </div>
-                        <p className="text-2xl font-black leading-tight text-white tracking-tight">
+                        <p className="text-2xl font-black leading-tight text-foreground tracking-tight">
                           你的<span className="text-primary bg-primary/10 px-2 py-0.5 rounded-lg border border-primary/20 mx-1">气息支撑</span>尚不稳定
                         </p>
                         <div className="space-y-3">
-                          <p className="text-sm font-medium text-zinc-100 leading-relaxed">
-                            建议先从<span className="text-white font-bold underline decoration-primary/50 underline-offset-4">副歌第一句</span>开始，通过慢速长音练习来稳固根基。
+                          <p className="text-sm font-medium text-foreground leading-relaxed">
+                            建议先从<span className="text-foreground font-bold underline decoration-primary/50 underline-offset-4">副歌第一句</span>开始，通过慢速长音练习来稳固根基。
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-zinc-300 font-bold">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground font-bold">
                             <CheckCircle2 className="w-4 h-4 text-success" />
                             <span>解锁条件：气息稳定性达到 85%</span>
                           </div>
@@ -1161,26 +1160,26 @@ const VocalAnalysisPage = () => {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-5">
-                      <div className="p-5 rounded-[1.5rem] bg-white/5 border border-zinc-700/40 flex flex-col justify-between hover:bg-white/10 transition-colors">
+                      <div className="p-5 rounded-[1.5rem] bg-accent/50 border border-border flex flex-col justify-between hover:bg-accent transition-colors">
                         <div className="flex justify-between items-center mb-4">
-                          <span className="text-xs font-black text-zinc-200 uppercase tracking-widest">阶段进度</span>
+                          <span className="text-xs font-black text-foreground uppercase tracking-widest">阶段进度</span>
                           <span className="text-base font-black text-primary">35%</span>
                         </div>
                         <div className="space-y-2">
-                          <div className="h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-zinc-700/40">
-                            <motion.div 
+                          <div className="h-3 bg-muted rounded-full overflow-hidden p-0.5 border border-border">
+                            <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: "35%" }}
                               transition={{ duration: 1.5, ease: "easeOut" }}
-                              className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full shadow-[0_0_15px_rgba(168,85,247,0.6)]"
+                              className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full shadow-sm"
                             />
                           </div>
-                          <p className="text-[10px] text-zinc-300 font-bold text-right">距离下一等级还差 1250 XP</p>
+                          <p className="text-[10px] text-muted-foreground font-bold text-right">距离下一等级还差 1250 XP</p>
                         </div>
                       </div>
-                      <div className="p-5 rounded-[1.5rem] bg-white/5 border border-zinc-700/40 flex flex-col justify-between hover:bg-white/10 transition-colors">
+                      <div className="p-5 rounded-[1.5rem] bg-accent/50 border border-border flex flex-col justify-between hover:bg-accent transition-colors">
                         <div className="flex justify-between items-center mb-4">
-                          <span className="text-xs font-black text-zinc-200 uppercase tracking-widest">任务奖励</span>
+                          <span className="text-xs font-black text-foreground uppercase tracking-widest">任务奖励</span>
                           <div className="flex gap-1">
                             <div className="w-5 h-5 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-500/40">
                               <Star className="w-2.5 h-2.5 text-yellow-500 fill-current" />
@@ -1193,17 +1192,17 @@ const VocalAnalysisPage = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex -space-x-2">
                             {[1, 2, 3].map(i => (
-                              <div key={i} className="w-9 h-9 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center overflow-hidden shadow-lg">
+                              <div key={i} className="w-9 h-9 rounded-full border-2 border-background bg-muted flex items-center justify-center overflow-hidden shadow-sm">
                                 <img src={`https://picsum.photos/seed/user${i}/36/36`} alt="user" className="w-full h-full object-cover opacity-90" />
                               </div>
                             ))}
-                            <div className="w-9 h-9 rounded-full border-2 border-zinc-900 bg-primary/30 flex items-center justify-center text-xs font-black text-primary shadow-lg backdrop-blur-sm">
+                            <div className="w-9 h-9 rounded-full border-2 border-background bg-primary/20 flex items-center justify-center text-xs font-black text-primary shadow-sm">
                               +12
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-xs font-black text-white">15 人</p>
-                            <p className="text-[10px] font-bold text-zinc-300">正在挑战</p>
+                            <p className="text-xs font-black text-foreground">15 人</p>
+                            <p className="text-[10px] font-bold text-muted-foreground">正在挑战</p>
                           </div>
                         </div>
                       </div>
@@ -1213,14 +1212,14 @@ const VocalAnalysisPage = () => {
               </div>
 
               {/* Right: Skill Tree (Roadmap) */}
-              <div className="lg:col-span-5 p-6 rounded-[2.5rem] bg-zinc-900/50 border border-zinc-700/60 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-md">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(168,85,247,0.1),transparent_70%)]" />
-                
+              <div className="lg:col-span-5 p-6 rounded-[2.5rem] bg-card border border-border flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.05),transparent_70%)]" />
+
                 <div className="relative z-10 w-full space-y-8">
                   <div className="flex items-center justify-center gap-3 mb-2">
-                    <div className="h-px w-8 bg-zinc-600" />
-                    <h4 className="text-sm font-black text-zinc-100 uppercase tracking-[0.3em]">技能进阶路径</h4>
-                    <div className="h-px w-8 bg-zinc-600" />
+                    <div className="h-px w-8 bg-border" />
+                    <h4 className="text-sm font-black text-foreground uppercase tracking-[0.3em]">技能进阶路径</h4>
+                    <div className="h-px w-8 bg-border" />
                   </div>
                   
                   <div className="flex flex-col items-center space-y-10">
@@ -1232,38 +1231,38 @@ const VocalAnalysisPage = () => {
                       <div key={i} className="relative flex flex-col items-center group/step w-full max-w-[220px]">
                         {/* Vertical Connection Line */}
                         {i < arr.length - 1 && (
-                          <div className={`absolute top-16 w-0.5 h-10 ${step.status === 'completed' ? 'bg-primary' : 'bg-zinc-700'} transition-colors duration-500`} />
+                          <div className={`absolute top-16 w-0.5 h-10 ${step.status === 'completed' ? 'bg-primary' : 'bg-border'} transition-colors duration-500`} />
                         )}
-                        
+
                         <div className="flex items-center gap-4 w-full">
-                          <motion.div 
+                          <motion.div
                             whileHover={{ scale: 1.1, rotate: 5 }}
                             className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 z-10 transition-all duration-500 relative ${
-                              step.status === 'completed' ? 'bg-primary text-primary-foreground shadow-[0_0_30px_rgba(168,85,247,0.5)]' :
-                              step.status === 'current' ? 'bg-zinc-800 border-2 border-primary text-primary shadow-[0_0_25px_rgba(168,85,247,0.3)]' :
-                              'bg-zinc-800 text-zinc-400 border border-zinc-600'
+                              step.status === 'completed' ? 'bg-primary text-primary-foreground shadow-lg' :
+                              step.status === 'current' ? 'bg-accent border-2 border-primary text-primary shadow-md' :
+                              'bg-muted text-muted-foreground border border-border'
                             }`}
                           >
                             <step.icon className={`w-8 h-8 ${step.status === 'current' ? 'animate-pulse' : ''}`} />
-                            
+
                             {/* Status Indicator */}
                             {step.status === 'locked' && (
-                              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-zinc-900 border border-zinc-600 flex items-center justify-center shadow-lg">
-                                <Lock className="w-3 h-3 text-zinc-400" />
+                              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-background border border-border flex items-center justify-center shadow-sm">
+                                <Lock className="w-3 h-3 text-muted-foreground" />
                               </div>
                             )}
                           </motion.div>
-                          
+
                           <div className="flex-1 text-left">
                             <div className="flex items-center gap-2">
                               <span className={`text-base font-black transition-colors duration-500 ${
-                                step.status === 'locked' ? 'text-zinc-400' : 'text-white'
+                                step.status === 'locked' ? 'text-muted-foreground' : 'text-foreground'
                               }`}>
                                 {step.label}
                               </span>
-                              <span className={`text-xs font-black ${step.status === 'locked' ? 'text-zinc-500' : 'text-primary'}`}>{step.lv}</span>
+                              <span className={`text-xs font-black ${step.status === 'locked' ? 'text-muted-foreground' : 'text-primary'}`}>{step.lv}</span>
                             </div>
-                            <span className="text-xs text-zinc-200 font-bold uppercase tracking-widest block mt-0.5">{step.desc}</span>
+                            <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest block mt-0.5">{step.desc}</span>
                           </div>
                         </div>
                       </div>
@@ -1281,11 +1280,11 @@ const VocalAnalysisPage = () => {
                     <Sword className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-black text-white uppercase tracking-widest">每日挑战任务</h4>
-                    <p className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Daily Quests · 完成任务获取大量经验</p>
+                    <h4 className="text-lg font-black text-foreground uppercase tracking-widest">每日挑战任务</h4>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Daily Quests · 完成任务获取大量经验</p>
                   </div>
                 </div>
-                 <div className="px-4 py-2 rounded-xl bg-white/5 border border-zinc-600/50 flex items-center gap-2 text-xs font-black text-zinc-200">
+                 <div className="px-4 py-2 rounded-xl bg-accent border border-border flex items-center gap-2 text-xs font-black text-foreground">
                    <Clock className="w-3.5 h-3.5 text-primary" />
                    <span>23:54:12 后刷新</span>
                 </div>
@@ -1315,13 +1314,13 @@ const VocalAnalysisPage = () => {
                     color: "from-purple-500/20 to-pink-500/20"
                   }
                 ].map((task) => (
-                  <motion.div 
+                  <motion.div
                     key={task.id}
                     whileHover={{ y: -8, scale: 1.01 }}
-                    className={`p-6 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden group backdrop-blur-md ${
-                      task.locked 
-                        ? 'bg-zinc-900/30 border-zinc-700/30 opacity-60 grayscale' 
-                        : 'bg-zinc-900/60 border-zinc-700/50 hover:border-primary/40 hover:bg-zinc-900/80 shadow-2xl'
+                    className={`p-6 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden group ${
+                      task.locked
+                        ? 'bg-muted/50 border-border opacity-60 grayscale'
+                        : 'bg-card border-border hover:border-primary/40 hover:shadow-lg shadow-md'
                     }`}
                   >
                     {/* Task Background Gradient */}
@@ -1347,12 +1346,12 @@ const VocalAnalysisPage = () => {
                               ))}
                             </div>
                           </div>
-                          <h5 className="font-black text-xl text-white tracking-tight">{task.title}</h5>
+                          <h5 className="font-black text-xl text-foreground tracking-tight">{task.title}</h5>
                         </div>
-                        <button 
+                        <button
                           onClick={() => !task.locked && togglePracticeFavorite(task.id)}
                           className={`p-3 rounded-2xl transition-all ${
-                            practiceFavorites[task.id] ? 'bg-red-500/20 text-red-500' : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                            practiceFavorites[task.id] ? 'bg-red-500/20 text-red-500' : 'bg-accent text-muted-foreground hover:bg-accent/80'
                           }`}
                         >
                           <Heart className={`w-5 h-5 ${practiceFavorites[task.id] ? 'fill-current' : ''}`} />
@@ -1360,32 +1359,32 @@ const VocalAnalysisPage = () => {
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 rounded-2xl bg-white/5 border border-zinc-700/40">
-                          <p className="text-[10px] font-black text-zinc-200 uppercase tracking-widest mb-1">奖励</p>
+                        <div className="p-4 rounded-2xl bg-accent border border-border">
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">奖励</p>
                           <p className="text-base font-bold text-primary">+{task.xp} XP</p>
                         </div>
-                        <div className="p-4 rounded-2xl bg-white/5 border border-zinc-700/40">
-                          <p className="text-[10px] font-black text-zinc-200 uppercase tracking-widest mb-1">属性提升</p>
+                        <div className="p-4 rounded-2xl bg-accent border border-border">
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">属性提升</p>
                           <p className="text-base font-bold text-success">{task.goal}</p>
                         </div>
                       </div>
 
                       <div className="space-y-3">
-                        <p className="text-xs font-black text-zinc-200 uppercase tracking-widest">任务说明</p>
-                        <p className="text-sm text-zinc-100 leading-relaxed font-medium">{task.method}</p>
+                        <p className="text-xs font-black text-foreground uppercase tracking-widest">任务说明</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed font-medium">{task.method}</p>
                       </div>
 
                       <div className="pt-4 flex items-center gap-3">
                         {task.locked ? (
-                          <Button disabled className="w-full rounded-2xl h-12 bg-zinc-800/50 text-zinc-400 gap-2 font-bold border border-zinc-700/40">
+                          <Button disabled className="w-full rounded-2xl h-12 bg-muted text-muted-foreground gap-2 font-bold border border-border">
                             <Lock className="w-4 h-4" /> 尚未解锁
                           </Button>
                         ) : (
                           <>
-                            <Button variant="outline" className="flex-1 rounded-2xl h-12 border-zinc-600/60 text-white bg-white/5 hover:bg-white/10 font-bold gap-2">
+                            <Button variant="outline" className="flex-1 rounded-2xl h-12 border-border text-foreground bg-accent hover:bg-accent/80 font-bold gap-2">
                               <PlayCircle className="w-4 h-4" /> 听参考
                             </Button>
-                            <Button className="flex-1 rounded-2xl h-12 bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-2 shadow-glow hover:scale-[1.02] transition-transform">
+                            <Button className="flex-1 rounded-2xl h-12 bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-2 shadow-lg hover:scale-[1.02] transition-transform">
                               <Mic className="w-4 h-4" /> 开始挑战
                             </Button>
                           </>
