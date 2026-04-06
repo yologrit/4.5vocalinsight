@@ -248,36 +248,30 @@ const VocalNotesLibraryPage = () => {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <div className="h-14 border-b border-gray-100 flex items-center px-5 gap-3 flex-shrink-0 bg-white/90 backdrop-blur-md">
-          {!sidebarOpen && (
-            <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors mr-1">
-              <PanelLeft className="w-4 h-4 text-gray-400" />
-            </button>
-          )}
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-800 truncate">《起风了》声乐笔记精选</span>
-              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-500 border border-amber-100 flex-shrink-0">示范</span>
-            </div>
-            <p className="text-[10px] text-gray-400 mt-0.5 leading-none">AI Coach · VocalInsight</p>
-          </div>
-        </div>
-
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">声乐笔记</h1>
-                <p className="text-muted-foreground text-sm mt-1">浏览已分析歌曲的唱法技巧拆解</p>
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex items-start gap-3 min-w-0">
+                {!sidebarOpen && (
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="mt-0.5 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <PanelLeft className="w-4 h-4 text-gray-400" />
+                  </button>
+                )}
+                <div className="min-w-0">
+                  <h1 className="text-2xl font-bold text-foreground">声乐笔记</h1>
+                  <p className="text-muted-foreground text-sm mt-1">浏览已分析歌曲的唱法技巧拆解</p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex bg-accent rounded-full p-0.5 border border-border/60">
+                <div className="flex bg-muted/80 rounded-full p-0.5 border border-border/70">
                   <button
                     onClick={() => setActiveTab("community")}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                      activeTab === "community" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                      activeTab === "community" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     社区
@@ -285,7 +279,7 @@ const VocalNotesLibraryPage = () => {
                   <button
                     onClick={() => setActiveTab("my-notes")}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                      activeTab === "my-notes" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                      activeTab === "my-notes" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     我的笔记
