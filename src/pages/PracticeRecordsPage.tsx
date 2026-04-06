@@ -4,15 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Music, MessageSquare, Plus, PanelLeftClose, PanelLeft,
-  BarChart3, ChevronRight, Star, Clock, CheckCircle2,
-  Target, Zap, Trophy, Flame, Lock, ArrowRight, User
+  BarChart3, Star, Clock, CheckCircle2,
+  Target, Zap, Trophy, Flame, Lock, ArrowRight
 } from "lucide-react";
 
 const historyChats = [
   { id: 0, title: "《起风了》声乐技巧和唱功…", time: "示范会话", isDemo: true },
-  { id: 1, title: "《起风了》副歌技巧分析", time: "今天" },
-  { id: 2, title: "《光年之外》高音练习", time: "昨天" },
-  { id: 3, title: "混声换声衔接练习", time: "3天前" },
 ];
 
 /* ===== Mock Data ===== */
@@ -41,34 +38,6 @@ const mockAnalysisHistory: AnalysisRecord[] = [
       { label: "气息", value: 82 },
     ],
     highlight: "混声切换略显生硬，高音支撑不足",
-  },
-  {
-    id: "2",
-    songTitle: "光年之外",
-    artist: "邓紫棋",
-    score: 78,
-    date: "2026-03-30",
-    dimensions: [
-      { label: "音准", value: 82 },
-      { label: "节奏", value: 85 },
-      { label: "技巧", value: 70 },
-      { label: "气息", value: 75 },
-    ],
-    highlight: "副歌高音区气息支撑不够稳定",
-  },
-  {
-    id: "3",
-    songTitle: "起风了",
-    artist: "买辣椒也用券",
-    score: 72,
-    date: "2026-03-28",
-    dimensions: [
-      { label: "音准", value: 78 },
-      { label: "节奏", value: 80 },
-      { label: "技巧", value: 62 },
-      { label: "气息", value: 70 },
-    ],
-    highlight: "换声点明显，颤音控制需加强",
   },
 ];
 
@@ -111,51 +80,6 @@ const mainQuest = {
 
 /* ===== Components ===== */
 
-const AnalysisHistoryCard = ({ record, onClick }: { record: AnalysisRecord; onClick: () => void }) => (
-  <div
-    className="bg-card border border-border rounded-2xl p-5 hover:border-primary/20 hover:shadow-md transition-all cursor-pointer group"
-    onClick={onClick}
-  >
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center flex-shrink-0">
-          <Music className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <div>
-          <h3 className="text-sm font-bold group-hover:text-primary transition-colors">{record.songTitle}</h3>
-          <p className="text-xs text-muted-foreground">{record.artist} · {record.date}</p>
-        </div>
-      </div>
-      {/* Score circle */}
-      <div className="relative w-12 h-12">
-        <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-          <circle cx="18" cy="18" r="15.9155" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" />
-          <circle cx="18" cy="18" r="15.9155" fill="none" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeDasharray={`${record.score}, 100`} strokeLinecap="round" />
-        </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-primary">{record.score}</span>
-      </div>
-    </div>
-
-    {/* Dimension bars - improved visual */}
-    <div className="space-y-2.5 mb-3">
-      {record.dimensions.map((d, i) => (
-        <div key={i} className="flex items-center gap-3">
-          <span className="text-[11px] text-muted-foreground w-8 text-right">{d.label}</span>
-          <div className="flex-1 h-2 bg-accent rounded-full overflow-hidden">
-            <div className="h-full bg-primary/80 rounded-full transition-all duration-500" style={{ width: `${d.value}%` }} />
-          </div>
-          <span className="text-[11px] font-bold w-6">{d.value}</span>
-        </div>
-      ))}
-    </div>
-
-    <p className="text-xs text-muted-foreground mt-2">{record.highlight}</p>
-    <div className="flex items-center justify-end text-primary text-[11px] font-bold gap-1 mt-3 group-hover:gap-2 transition-all">
-      查看详情 <ChevronRight className="w-3 h-3" />
-    </div>
-  </div>
-);
-
 const PracticeRecordsPage = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -166,54 +90,80 @@ const PracticeRecordsPage = () => {
   const currentSkill = skillPath.find(s => s.status === "current");
 
   return (
-    <div className="h-screen flex bg-background overflow-hidden">
+    <div className="h-screen flex overflow-hidden" style={{ background: "#FAFAF7" }}>
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 overflow-hidden border-r border-border bg-sidebar flex-shrink-0`}>
+      <div
+        className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0 border-r border-gray-100`}
+        style={{ background: "#FFFFFF" }}
+      >
         <div className="w-64 h-full flex flex-col">
-          <div className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <Music className="w-3.5 h-3.5 text-primary-foreground" />
+          <div className="px-4 pt-5 pb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
+                <Music className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="font-bold text-sm">VocalInsight</span>
+              <span className="font-bold text-sm text-gray-900 tracking-tight">VocalInsight</span>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg hover:bg-sidebar-accent transition-colors">
-              <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
+            <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+              <PanelLeftClose className="w-4 h-4 text-gray-400" />
             </button>
           </div>
 
-          <div className="px-3 mb-2">
-            <Button variant="outline" className="w-full justify-start gap-2 text-sm" onClick={() => navigate("/coach?new=1")}>
+          <div className="px-3 mb-3">
+            <button
+              onClick={() => navigate("/coach?new=1")}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50 transition-all font-medium"
+            >
               <Plus className="w-4 h-4" /> 新对话
-            </Button>
-          </div>
-
-          <div className="px-3 space-y-1">
-            <button onClick={() => navigate("/coach")} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-sidebar-accent text-sidebar-foreground transition-colors">
-              <MessageSquare className="w-4 h-4" /> AI Coach
-            </button>
-            <button onClick={() => navigate("/vocal-notes-library")} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-sidebar-accent text-sidebar-foreground transition-colors">
-              <Music className="w-4 h-4" /> Vocal Notes
-            </button>
-            <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-primary/10 text-primary border border-primary/20 font-medium transition-colors">
-              <BarChart3 className="w-4 h-4" /> 练习记录
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 space-y-1 mt-4">
-            <p className="text-xs text-muted-foreground px-2 py-2 font-medium">历史会话</p>
-            {historyChats.map((chat) => (
-              <button key={chat.id} onClick={() => navigate("/coach")} className="w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors truncate hover:bg-sidebar-accent text-sidebar-foreground">
-                <MessageSquare className="w-3.5 h-3.5 inline mr-2 text-muted-foreground" />
-                {chat.title}
-                <span className="block text-xs mt-0.5 text-muted-foreground">{chat.time}</span>
+          <div className="px-3 space-y-0.5 mb-3">
+            {[
+              { icon: MessageSquare, label: "声乐老师", active: false, onClick: () => navigate("/coach") },
+              { icon: Music, label: "声乐笔记", active: false, onClick: () => navigate("/vocal-notes-library") },
+              { icon: BarChart3, label: "练习记录", active: true, onClick: undefined },
+            ].map(({ icon: Icon, label, active, onClick }) => (
+              <button
+                key={label}
+                onClick={onClick}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                  active
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                }`}
+              >
+                <Icon className="w-4 h-4" /> {label}
               </button>
             ))}
           </div>
 
-          <div className="p-3 border-t border-sidebar-border space-y-1">
-            <button onClick={() => navigate("/profile")} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-sidebar-accent text-sidebar-foreground transition-colors">
-              <User className="w-4 h-4" /> 个人中心
+          <div className="flex-1 overflow-y-auto px-3">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-2 py-2">历史会话</p>
+            <div className="space-y-0.5">
+              {historyChats.map((chat) => (
+                <button
+                  key={chat.id}
+                  onClick={() => navigate("/coach")}
+                  className="w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <MessageSquare className="w-3.5 h-3.5 flex-shrink-0 text-gray-300" />
+                    <span className="truncate text-xs font-medium">{chat.title}</span>
+                  </div>
+                  <p className="text-[10px] mt-0.5 pl-5 text-gray-400">{chat.time}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-3 border-t border-gray-100">
+            <button
+              onClick={() => navigate("/profile")}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-all"
+            >
+              <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600">A</div>
+              个人中心
             </button>
           </div>
         </div>
@@ -221,34 +171,34 @@ const PracticeRecordsPage = () => {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <div className="h-14 border-b border-border flex items-center px-4 gap-3 flex-shrink-0">
-          {!sidebarOpen && (
-            <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-lg hover:bg-accent transition-colors">
-              <PanelLeft className="w-4 h-4" />
-            </button>
-          )}
-          <BarChart3 className="w-4 h-4 text-primary" />
-          <h1 className="text-sm font-semibold">练习记录</h1>
-        </div>
-
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+          <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
             {/* Header + Tabs */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold">练习记录</h1>
-                <p className="text-sm text-muted-foreground mt-1">追踪你的练习进度与技能成长</p>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-start gap-3 min-w-0">
+                {!sidebarOpen && (
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="mt-0.5 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <PanelLeft className="w-4 h-4 text-gray-400" />
+                  </button>
+                )}
+                <div className="min-w-0">
+                  <h1 className="text-2xl font-bold text-foreground">练习记录</h1>
+                  <p className="text-sm text-muted-foreground mt-1">追踪你的练习进度与技能成长</p>
+                </div>
               </div>
-              <div className="flex bg-accent rounded-full p-0.5">
+              <div className="flex bg-muted/80 rounded-full p-0.5 border border-border/70">
                 <button
                   onClick={() => setActiveTab("progress")}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${activeTab === "progress" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${activeTab === "progress" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   练习进度
                 </button>
                 <button
                   onClick={() => setActiveTab("history")}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${activeTab === "history" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${activeTab === "history" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   唱功分析历史
                 </button>
@@ -369,7 +319,7 @@ const PracticeRecordsPage = () => {
                     {dailyChallenges.map((challenge) => (
                       <div key={challenge.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
                         challenge.completed
-                          ? "bg-success/5 border-success/20"
+                          ? "bg-card border-border/50 opacity-60"
                           : challenge.locked
                           ? "bg-muted/20 border-border/30 opacity-50"
                           : "bg-card border-border hover:border-primary/20"
@@ -385,7 +335,7 @@ const PracticeRecordsPage = () => {
                           {challenge.locked && <Lock className="w-3 h-3" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-medium ${challenge.completed ? "line-through text-muted-foreground" : challenge.locked ? "text-muted-foreground" : ""}`}>{challenge.title}</p>
+                          <p className={`text-sm font-medium ${challenge.locked ? "text-muted-foreground" : ""}`}>{challenge.title}</p>
                           <p className="text-[11px] text-muted-foreground">{challenge.description}</p>
                         </div>
                         <Badge variant="outline" className="text-[10px] h-5 px-2 flex-shrink-0">+{challenge.xp} XP</Badge>
@@ -402,34 +352,56 @@ const PracticeRecordsPage = () => {
             )}
 
             {activeTab === "history" && (
-              <div className="space-y-4">
-                {/* Stats row */}
-                <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
                     { label: "总分析次数", value: mockAnalysisHistory.length.toString(), icon: BarChart3 },
                     { label: "最高分", value: Math.max(...mockAnalysisHistory.map(r => r.score)).toString(), icon: Star },
                     { label: "累计练习天数", value: "12", icon: Clock },
                   ].map((stat, i) => (
-                    <div key={i} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
+                    <div key={i} className="bg-card border border-border/70 rounded-2xl p-4 flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                         <stat.icon className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-2xl font-bold">{stat.value}</p>
-                        <p className="text-[11px] text-muted-foreground">{stat.label}</p>
+                        <p className="text-2xl font-bold text-foreground leading-none">{stat.value}</p>
+                        <p className="text-[11px] text-muted-foreground mt-1">{stat.label}</p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* History list */}
-                <div className="space-y-4">
-                  {mockAnalysisHistory.map((record) => (
-                    <AnalysisHistoryCard
+                <div className="space-y-3">
+                  {mockAnalysisHistory.map((record, index) => (
+                    <button
                       key={record.id}
-                      record={record}
                       onClick={() => navigate("/vocal-analysis")}
-                    />
+                      className="w-full text-left p-4 rounded-2xl border border-border/60 bg-card hover:border-primary/30 hover:shadow-sm transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">第 {index + 1} 次</span>
+                            <span className="text-[11px] text-muted-foreground">{record.date}</span>
+                          </div>
+                          <p className="text-sm font-semibold text-foreground">《{record.songTitle}》 · {record.artist}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{record.highlight}</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-2xl font-black text-primary leading-none">{record.score}</p>
+                          <p className="text-[10px] text-muted-foreground mt-1">综合评分</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-4 gap-2">
+                        {record.dimensions.map((d) => (
+                          <div key={d.label} className="rounded-xl bg-accent/50 px-3 py-2">
+                            <p className="text-[10px] text-muted-foreground">{d.label}</p>
+                            <p className="text-sm font-bold text-foreground">{d.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </button>
                   ))}
                 </div>
               </div>

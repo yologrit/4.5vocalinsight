@@ -10,9 +10,6 @@ import {
 
 const historyChats = [
   { id: 0, title: "《起风了》声乐技巧和唱功…", time: "示范会话", isDemo: true },
-  { id: 1, title: "《起风了》副歌技巧分析", time: "今天" },
-  { id: 2, title: "《光年之外》高音练习", time: "昨天" },
-  { id: 3, title: "混声换声衔接练习", time: "3天前" },
 ];
 
 interface SongCard {
