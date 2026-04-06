@@ -1414,20 +1414,30 @@ const VocalAnalysisPage = () => {
                             <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary font-semibold">+{task.xp} XP</span>
                             <span className="px-2 py-1 rounded-lg bg-success/10 text-success font-semibold">{task.goal}</span>
                           </div>
-                          <div className="pt-1 flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              disabled={task.locked}
-                              className="h-9 rounded-xl border-border text-foreground bg-accent hover:bg-accent/80 font-bold gap-1.5 px-3"
-                            >
-                              <PlayCircle className="w-3.5 h-3.5" /> 听参考
-                            </Button>
-                            <Button
-                              disabled={task.locked}
-                              className="h-9 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-1.5 px-3 shadow-md hover:scale-[1.01] transition-transform"
-                            >
-                              <Mic className="w-3.5 h-3.5" /> 开始挑战
-                            </Button>
+                          <div className="pt-1">
+                            {task.locked ? (
+                              <Button
+                                variant="outline"
+                                disabled
+                                className="w-full h-9 rounded-xl border-border bg-muted text-muted-foreground font-bold gap-1.5 cursor-not-allowed"
+                              >
+                                <Lock className="w-3.5 h-3.5" /> 尚未解锁
+                              </Button>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  className="h-9 rounded-xl border-border text-foreground bg-accent hover:bg-accent/80 font-bold gap-1.5 px-3"
+                                >
+                                  <PlayCircle className="w-3.5 h-3.5" /> 听参考
+                                </Button>
+                                <Button
+                                  className="h-9 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-1.5 px-3 shadow-md hover:scale-[1.01] transition-transform"
+                                >
+                                  <Mic className="w-3.5 h-3.5" /> 开始挑战
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <button
