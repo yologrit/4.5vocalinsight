@@ -1029,13 +1029,13 @@ const VocalAnalysisPage = () => {
 
                     {/* Feedback Micro-interactions */}
                     <div className="pt-6 border-t border-border mt-6 space-y-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 flex-nowrap">
                         <button
                           onClick={() => handleFeedback(selectedTechnique.cn, 'helpful')}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                             feedback[selectedTechnique.cn]?.helpful
-                              ? "bg-primary/10 text-primary border border-primary/20"
-                              : "bg-accent/50 text-muted-foreground hover:bg-accent border border-transparent"
+                              ? "bg-primary/10 text-primary border border-primary/25"
+                              : "bg-accent/60 text-muted-foreground hover:bg-accent border border-transparent"
                           }`}
                         >
                           <ThumbsUp className={`w-3.5 h-3.5 ${feedback[selectedTechnique.cn]?.helpful ? "fill-current" : ""}`} />
@@ -1044,12 +1044,14 @@ const VocalAnalysisPage = () => {
                         <button
                           onClick={() => handleFeedback(selectedTechnique.cn, 'notRight')}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                            feedback[selectedTechnique.cn]?.notRight
+                            feedback[selectedTechnique.cn]?.subOption
+                              ? "bg-destructive text-destructive-foreground border border-destructive"
+                              : feedback[selectedTechnique.cn]?.notRight
                               ? "bg-destructive/10 text-destructive border border-destructive/20"
-                              : "bg-accent/50 text-muted-foreground hover:bg-accent border border-transparent"
+                              : "bg-accent/60 text-muted-foreground hover:bg-accent border border-transparent"
                           }`}
                         >
-                          <ThumbsDown className={`w-3.5 h-3.5 ${feedback[selectedTechnique.cn]?.notRight ? "fill-current" : ""}`} />
+                          <ThumbsDown className={`w-3.5 h-3.5 ${feedback[selectedTechnique.cn]?.notRight || feedback[selectedTechnique.cn]?.subOption ? "fill-current" : ""}`} />
                           不太对
                         </button>
                         <button
@@ -1057,7 +1059,7 @@ const VocalAnalysisPage = () => {
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ml-auto ${
                             techFavorites[selectedTechnique.cn]
                               ? "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20"
-                              : "bg-accent/50 text-muted-foreground hover:bg-accent border border-transparent"
+                              : "bg-accent/60 text-muted-foreground hover:bg-accent border border-transparent"
                           }`}
                         >
                           <Star className={`w-3.5 h-3.5 ${techFavorites[selectedTechnique.cn] ? "fill-current" : ""}`} />
@@ -1074,15 +1076,15 @@ const VocalAnalysisPage = () => {
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden space-y-3"
                           >
-                            <div className="p-3 rounded-xl bg-accent/30 border border-border grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-3">
                               {["音高判断不对", "节奏判断不对", "技巧判断不对", "评价太严苛"].map((option) => (
                                 <button
                                   key={option}
                                   onClick={() => handleSubOption(selectedTechnique.cn, option)}
-                                  className={`text-[10px] py-1.5 px-2 rounded-lg text-left transition-all ${
+                                  className={`h-10 rounded-xl text-[14px] font-semibold transition-all ${
                                     feedback[selectedTechnique.cn]?.subOption === option
-                                      ? "bg-primary text-primary-foreground shadow-sm"
-                                      : "bg-background/50 text-muted-foreground hover:bg-background"
+                                      ? "bg-destructive/10 text-destructive border border-destructive/35 shadow-[0_1px_0_rgba(239,68,68,0.12)]"
+                                      : "bg-muted/55 text-muted-foreground border border-transparent hover:bg-muted/75"
                                   }`}
                                 >
                                   {option}
@@ -1091,8 +1093,8 @@ const VocalAnalysisPage = () => {
                             </div>
 
                             {feedback[selectedTechnique.cn]?.subOption && !feedback[selectedTechnique.cn]?.isSubmitted && (
-                              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                                <p className="text-[10px] text-muted-foreground px-1 font-medium">请提供正确的描述或建议（可选）：</p>
+                              <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <p className="text-[13px] text-muted-foreground font-medium">请提供正确描述（可选）：</p>
                                 <textarea
                                   value={feedback[selectedTechnique.cn]?.correctionText || ""}
                                   onChange={(e) => setFeedback(prev => ({
@@ -1103,11 +1105,11 @@ const VocalAnalysisPage = () => {
                                     }
                                   }))}
                                   placeholder="例如：这里应该是混声而不是假声..."
-                                  className="w-full h-20 bg-background border border-border rounded-lg p-2 text-xs outline-none focus:border-primary/30 resize-none"
+                                  className="w-full h-20 bg-muted/35 border border-border/70 rounded-2xl px-4 py-3 text-[15px] text-foreground/80 placeholder:text-muted-foreground/80 outline-none focus:border-primary/35 resize-none"
                                 />
                                 <button
                                   onClick={() => handleSubmitCorrection(selectedTechnique.cn)}
-                                  className="w-full py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-sm"
+                                  className="w-full h-11 rounded-2xl bg-primary text-primary-foreground text-[17px] font-bold hover:bg-primary/90 transition-all shadow-sm"
                                 >
                                   提交勘误
                                 </button>
@@ -1115,7 +1117,7 @@ const VocalAnalysisPage = () => {
                             )}
 
                             {feedback[selectedTechnique.cn]?.isSubmitted && (
-                              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-600 text-[10px] text-center animate-in fade-in duration-500">
+                              <div className="p-3 rounded-2xl bg-success/10 border border-success/20 text-success text-xs text-center animate-in fade-in duration-500">
                                 感谢您的反馈！我们会尽快核实并修正。
                               </div>
                             )}
@@ -1335,127 +1337,107 @@ const VocalAnalysisPage = () => {
               </div>
             </div>
 
-            {/* Bottom Practice Action Area - Gamified Task Cards */}
+            {/* Bottom Practice Action Area - Daily challenge with Task1/Task2 in one card */}
             <div className="space-y-6">
-              <div className="flex items-center justify-between px-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
-                    <Sword className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-black text-foreground uppercase tracking-widest">每日挑战任务</h4>
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Daily Quests · 完成任务获取大量经验</p>
-                  </div>
-                </div>
-                 <div className="px-4 py-2 rounded-xl bg-accent border border-border flex items-center gap-2 text-xs font-black text-foreground">
-                   <Clock className="w-3.5 h-3.5 text-primary" />
-                   <span>23:54:12 后刷新</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  {
-                    id: 1,
-                    title: "气息稳固：长音支撑挑战",
-                    goal: "稳定性 +15%",
-                    method: "深吸气，保持腹部支撑，练习“啊”音平稳延长10秒",
-                    difficulty: 2,
-                    xp: 250,
-                    icon: Wind,
-                    color: "from-blue-500/20 to-primary/20"
-                  },
-                  {
-                    id: 2,
-                    title: "换声预演：弱声滑音练习",
-                    goal: "平滑度 +10%",
-                    method: "用极小的音量，从低音平滑滑向高音，感受声带闭合",
-                    difficulty: 4,
-                    xp: 500,
-                    icon: Repeat,
-                    locked: true,
-                    color: "from-purple-500/20 to-pink-500/20"
-                  }
-                ].map((task) => (
-                  <motion.div
-                    key={task.id}
-                    whileHover={{ y: -8, scale: 1.01 }}
-                    className={`p-6 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden group ${
-                      task.locked
-                        ? 'bg-muted/50 border-border opacity-60 grayscale'
-                        : 'bg-card border-border hover:border-primary/40 hover:shadow-lg shadow-md'
-                    }`}
-                  >
-                    {/* Task Background Gradient */}
-                    {!task.locked && (
-                      <div className={`absolute inset-0 bg-gradient-to-br ${task.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
-                    )}
-                    
-                    {/* Task Background Pattern */}
-                    <div className="absolute -right-12 -bottom-12 w-48 h-48 opacity-[0.05] group-hover:opacity-[0.1] transition-all duration-700 group-hover:rotate-12 group-hover:scale-110">
-                      <task.icon className="w-full h-full" />
+              <div className="p-6 rounded-[2rem] bg-card border border-border shadow-md space-y-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
+                      <Sword className="w-5 h-5 text-primary" />
                     </div>
+                    <div>
+                      <h4 className="text-lg font-black text-foreground uppercase tracking-widest">每日挑战任务</h4>
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Task 1 + Task 2 组合挑战</p>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1.5 rounded-xl bg-accent border border-border flex items-center gap-2 text-xs font-black text-foreground">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span>23:54:12 后刷新</span>
+                  </div>
+                </div>
 
-                    <div className="relative z-10 space-y-8">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-3">
+                <div className="space-y-4">
+                  {[
+                    {
+                      id: 1,
+                      title: "Task 1 · 气息稳固：长音支撑挑战",
+                      goal: "稳定性 +15%",
+                      method: "深吸气，保持腹部支撑，练习“啊”音平稳延长10秒",
+                      difficulty: 2,
+                      xp: 250,
+                      icon: Wind,
+                      color: "from-blue-500/20 to-primary/20",
+                      locked: false,
+                    },
+                    {
+                      id: 2,
+                      title: "Task 2 · 换声预演：弱声滑音练习",
+                      goal: "平滑度 +10%",
+                      method: "用极小的音量，从低音平滑滑向高音，感受声带闭合",
+                      difficulty: 4,
+                      xp: 500,
+                      icon: Repeat,
+                      color: "from-purple-500/20 to-pink-500/20",
+                      locked: true,
+                    }
+                  ].map((task) => (
+                    <motion.div
+                      key={task.id}
+                      whileHover={task.locked ? undefined : { y: -4, scale: 1.005 }}
+                      className={`p-5 rounded-[2rem] border transition-all duration-500 relative overflow-hidden group ${
+                        task.locked
+                          ? "bg-muted/50 border-border opacity-70 grayscale"
+                          : "bg-card border-border hover:border-primary/35 hover:shadow-lg shadow-sm"
+                      }`}
+                    >
+                      {!task.locked && (
+                        <div className={`absolute inset-0 bg-gradient-to-br ${task.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+                      )}
+                      <div className="absolute -right-10 -bottom-10 w-40 h-40 opacity-[0.05] group-hover:opacity-[0.1] transition-all duration-700 group-hover:rotate-12">
+                        <task.icon className="w-full h-full" />
+                      </div>
+
+                      <div className="relative z-10 flex items-start gap-3">
+                        <div className="flex-1 space-y-2.5">
                           <div className="flex items-center gap-2">
                             <Badge variant="outline" className="text-[10px] font-black border-primary/30 text-primary bg-primary/5 px-2 py-0">
-                              TASK 0{task.id}
+                              {task.id === 1 ? "TASK 01" : "TASK 02"}
                             </Badge>
                             <div className="flex gap-0.5">
-                              {[1, 2, 3, 5].map(star => (
-                                <div key={star} className={`w-2 h-2 rounded-full ${star <= task.difficulty ? 'bg-yellow-500' : 'bg-zinc-700'}`} />
+                              {[1, 2, 3, 4].map((star) => (
+                                <div key={star} className={`w-2 h-2 rounded-full ${star <= task.difficulty ? 'bg-yellow-500' : 'bg-zinc-300'}`} />
                               ))}
                             </div>
                           </div>
-                          <h5 className="font-black text-xl text-foreground tracking-tight">{task.title}</h5>
+                          <h5 className="font-black text-lg text-foreground tracking-tight">{task.title}</h5>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{task.method}</p>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary font-semibold">+{task.xp} XP</span>
+                            <span className="px-2 py-1 rounded-lg bg-success/10 text-success font-semibold">{task.goal}</span>
+                          </div>
                         </div>
                         <button
                           onClick={() => !task.locked && togglePracticeFavorite(task.id)}
                           className={`p-3 rounded-2xl transition-all ${
                             practiceFavorites[task.id] ? 'bg-red-500/20 text-red-500' : 'bg-accent text-muted-foreground hover:bg-accent/80'
                           }`}
+                          disabled={task.locked}
                         >
                           <Heart className={`w-5 h-5 ${practiceFavorites[task.id] ? 'fill-current' : ''}`} />
                         </button>
                       </div>
+                    </motion.div>
+                  ))}
+                </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 rounded-2xl bg-accent border border-border">
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">奖励</p>
-                          <p className="text-base font-bold text-primary">+{task.xp} XP</p>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-accent border border-border">
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">属性提升</p>
-                          <p className="text-base font-bold text-success">{task.goal}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <p className="text-xs font-black text-foreground uppercase tracking-widest">任务说明</p>
-                        <p className="text-sm text-muted-foreground leading-relaxed font-medium">{task.method}</p>
-                      </div>
-
-                      <div className="pt-4 flex items-center gap-3">
-                        {task.locked ? (
-                          <Button disabled className="w-full rounded-2xl h-12 bg-muted text-muted-foreground gap-2 font-bold border border-border">
-                            <Lock className="w-4 h-4" /> 尚未解锁
-                          </Button>
-                        ) : (
-                          <>
-                            <Button variant="outline" className="flex-1 rounded-2xl h-12 border-border text-foreground bg-accent hover:bg-accent/80 font-bold gap-2">
-                              <PlayCircle className="w-4 h-4" /> 听参考
-                            </Button>
-                            <Button className="flex-1 rounded-2xl h-12 bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-2 shadow-lg hover:scale-[1.02] transition-transform">
-                              <Mic className="w-4 h-4" /> 开始挑战
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                <div className="pt-2 flex items-center gap-3">
+                  <Button variant="outline" className="flex-1 rounded-2xl h-11 border-border text-foreground bg-accent hover:bg-accent/80 font-bold gap-2">
+                    <PlayCircle className="w-4 h-4" /> 听参考
+                  </Button>
+                  <Button className="flex-1 rounded-2xl h-11 bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-2 shadow-lg hover:scale-[1.02] transition-transform">
+                    <Mic className="w-4 h-4" /> 开始挑战
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
