@@ -376,7 +376,7 @@ const PracticeRecordsPage = () => {
                     <button
                       key={record.id}
                       onClick={() => navigate("/vocal-analysis")}
-                      className="w-full text-left p-4 rounded-2xl border border-border/60 bg-card hover:border-primary/30 hover:shadow-sm transition-all"
+                      className="w-full md:w-1/2 text-left p-4 rounded-2xl border border-border/60 bg-card hover:border-primary/30 hover:shadow-sm transition-all"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
