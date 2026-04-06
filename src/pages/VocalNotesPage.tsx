@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   ArrowLeft, Play, Star, Music,
-  BookOpen, Pause, Mail, ShieldCheck,
+  Pause, Mail, ShieldCheck,
   BarChart3, Check, Circle, CheckCircle2, Edit3, StickyNote, Trash2, X
 } from "lucide-react";
 import {
@@ -355,39 +355,49 @@ const VocalNotesPage = () => {
   const activeTech = getActiveTech();
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {/* Top bar — slim, glass-style */}
-      <div className="h-12 border-b border-border/60 flex items-center px-4 gap-3 flex-shrink-0 bg-background/80 backdrop-blur-md z-30">
+    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
+      {/* Topbar — AI Coach aligned */}
+      <div className="h-14 border-b border-border/60 flex items-center px-5 gap-3 flex-shrink-0 bg-background/90 backdrop-blur-md z-30">
         <button
           onClick={() => navigate("/coach")}
           className="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div className="flex items-center gap-1.5">
-          <BookOpen className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-semibold tracking-wide text-foreground/80">声乐笔记</span>
-          <span className="text-[10px] text-muted-foreground/60 font-normal">Vocal Notes</span>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-foreground truncate">《起风了》声乐笔记</span>
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20 flex-shrink-0">示范</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">AI Coach · VocalInsight</p>
         </div>
-        <div className="ml-auto">
-          <button
-            onClick={handleFavorite}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
-              isFavorited
-                ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/30"
-                : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
-            }`}
-          >
-            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-current" : ""}`} />
-            {isFavorited ? "已收藏" : "收藏"}
-          </button>
+
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-success/10 border border-success/20">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-success" />
+          </span>
+          <span className="text-[10px] font-medium text-success">在线</span>
         </div>
+
+        <button
+          onClick={handleFavorite}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+            isFavorited
+              ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/30"
+              : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+          }`}
+        >
+          <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-current" : ""}`} />
+          {isFavorited ? "已收藏" : "收藏"}
+        </button>
       </div>
 
       {/* Song Hero — immersive gradient banner */}
-      <div className="relative flex-shrink-0 overflow-hidden">
+      <div className="relative flex-shrink-0 overflow-hidden border-b border-border/60">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/8 to-background pointer-events-none" />
-        <div className="relative flex items-center gap-4 px-6 py-4 max-w-4xl mx-auto">
+        <div className="relative flex items-center gap-4 px-6 py-4 max-w-2xl mx-auto">
           {/* Album art */}
           <div className="relative flex-shrink-0">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
@@ -434,12 +444,12 @@ const VocalNotesPage = () => {
           ref={lyricsContainerRef}
           onClick={handleLyricsClick}
           onDragOver={(e) => e.preventDefault()}
-          className={`flex-1 overflow-y-auto px-6 py-8 relative ${editMode ? "cursor-crosshair" : ""}`}
+          className={`flex-1 overflow-y-auto px-6 py-8 relative bg-background ${editMode ? "cursor-crosshair" : ""}`}
         >
           {editMode && (
             <div className="absolute inset-0 bg-primary/[0.02] border-2 border-dashed border-primary/20 pointer-events-none z-10 rounded-none" />
           )}
-          <div className={`max-w-xl mx-auto space-y-0.5 pr-28 relative ${editMode ? "pointer-events-none select-none" : ""}`}>
+          <div className={`max-w-2xl mx-auto space-y-1 pr-28 relative ${editMode ? "pointer-events-none select-none" : ""}`}>
             {mockLyrics.map((line, i) => (
               <div key={i} className="relative group flex items-center gap-2">
                 {analysisMode && (
@@ -631,7 +641,7 @@ const VocalNotesPage = () => {
         </div>
 
         {/* Right: Annotation panel */}
-        <div className="w-72 lg:w-80 border-l border-border/60 bg-card/50 backdrop-blur-sm overflow-y-auto px-5 py-6 hidden md:flex flex-col gap-0">
+        <div className="w-72 lg:w-80 border-l border-border/60 bg-card overflow-y-auto px-5 py-6 hidden md:flex flex-col gap-0">
           {/* Panel header */}
           <div className="flex items-center gap-2 mb-5 pb-4 border-b border-border/50">
             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-soft" />
