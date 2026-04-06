@@ -1347,7 +1347,6 @@ const VocalAnalysisPage = () => {
                     </div>
                     <div>
                       <h4 className="text-lg font-black text-foreground uppercase tracking-widest">每日挑战任务</h4>
-                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Task 1 + Task 2 组合挑战</p>
                     </div>
                   </div>
                   <div className="px-3 py-1.5 rounded-xl bg-accent border border-border flex items-center gap-2 text-xs font-black text-foreground">
@@ -1356,7 +1355,7 @@ const VocalAnalysisPage = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
                     {
                       id: 1,
@@ -1415,6 +1414,21 @@ const VocalAnalysisPage = () => {
                             <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary font-semibold">+{task.xp} XP</span>
                             <span className="px-2 py-1 rounded-lg bg-success/10 text-success font-semibold">{task.goal}</span>
                           </div>
+                          <div className="pt-1 flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              disabled={task.locked}
+                              className="h-9 rounded-xl border-border text-foreground bg-accent hover:bg-accent/80 font-bold gap-1.5 px-3"
+                            >
+                              <PlayCircle className="w-3.5 h-3.5" /> 听参考
+                            </Button>
+                            <Button
+                              disabled={task.locked}
+                              className="h-9 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-1.5 px-3 shadow-md hover:scale-[1.01] transition-transform"
+                            >
+                              <Mic className="w-3.5 h-3.5" /> 开始挑战
+                            </Button>
+                          </div>
                         </div>
                         <button
                           onClick={() => !task.locked && togglePracticeFavorite(task.id)}
@@ -1430,14 +1444,6 @@ const VocalAnalysisPage = () => {
                   ))}
                 </div>
 
-                <div className="pt-2 flex items-center gap-3">
-                  <Button variant="outline" className="flex-1 rounded-2xl h-11 border-border text-foreground bg-accent hover:bg-accent/80 font-bold gap-2">
-                    <PlayCircle className="w-4 h-4" /> 听参考
-                  </Button>
-                  <Button className="flex-1 rounded-2xl h-11 bg-gradient-to-r from-primary to-purple-600 text-white font-bold gap-2 shadow-lg hover:scale-[1.02] transition-transform">
-                    <Mic className="w-4 h-4" /> 开始挑战
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
