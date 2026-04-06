@@ -156,8 +156,8 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
           const isCorrect = Math.abs(pitch - origPitch) < 2.0;
 
           ctx.beginPath();
-          ctx.strokeStyle = isCorrect ? '#818CF8' : '#EF4444'; // Design system: mixed voice indigo for correct, destructive red for incorrect
-          ctx.lineWidth = 4;
+          ctx.strokeStyle = isCorrect ? 'rgba(79, 70, 229, 0.72)' : 'rgba(239, 68, 68, 0.82)';
+          ctx.lineWidth = 3.5;
           ctx.lineCap = 'round';
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
@@ -206,11 +206,11 @@ const PitchVisualizer = ({ currentTime, data }: { currentTime: number, data: Ana
       <div className="absolute top-3 left-4 flex gap-4">
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Ref Pitch</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">参考音高</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-sm" />
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">User Pitch</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">练唱音高</span>
         </div>
       </div>
       
@@ -455,46 +455,71 @@ const VocalAnalysisPage = () => {
   };
 
   const getAccuracyColor = (accuracy: number, alpha?: number) => {
-    // Design system score semantic colors
-    let r, g, b;
-    if (accuracy >= 90) {
-      // Excellent: #22C55E
-      r = 34; g = 197; b = 94;
-    } else if (accuracy >= 75) {
-      // Good: #84CC16
-      r = 132; g = 204; b = 22;
-    } else if (accuracy >= 60) {
-      // Fair: #EAB308
-      r = 234; g = 179; b = 8;
+    const safeAccuracy = Math.max(0, Math.min(100, accuracy));
+
+    const high = { r: 58, g: 164, b: 116 };  // success tone
+    const mid = { r: 214, g: 151, b: 58 };   // warning tone
+    const low = { r: 205, g: 82, b: 82 };    // destructive tone
+
+    const blend = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
+
+    let r: number;
+    let g: number;
+    let b: number;
+
+    if (safeAccuracy >= 60) {
+      const t = (safeAccuracy - 60) / 40;
+      r = blend(mid.r, high.r, t);
+      g = blend(mid.g, high.g, t);
+      b = blend(mid.b, high.b, t);
     } else {
-      // Poor: #EF4444
-      r = 239; g = 68; b = 68;
+      const t = safeAccuracy / 60;
+      r = blend(low.r, mid.r, t);
+      g = blend(low.g, mid.g, t);
+      b = blend(low.b, mid.b, t);
     }
 
     return alpha !== undefined ? `rgba(${r}, ${g}, ${b}, ${alpha})` : `rgb(${r}, ${g}, ${b})`;
   };
 
   const getTechniqueTagClasses = (tech: AnalysisTechnique, isSelected: boolean) => {
-    const accuracy = tech.accuracy;
-    const baseColor = getAccuracyBaseColor(accuracy);
-    
-    // Special case for "也有了几分距离" (Mixed, accuracy 75) - user wants gradient
-    if (tech.type === "mixed" && accuracy === 75) {
-      return `bg-gradient-to-r from-green-500/20 via-orange-500/20 to-red-500/20 text-foreground border-border/50`;
-    }
+    return `inline-flex items-center px-1.5 py-0 rounded text-[10px] font-semibold border transition-all ${
+      isSelected ? "opacity-100 z-10 shadow-sm" : "opacity-80 hover:opacity-100"
+    }`;
+  };
 
-    // For transition types, user wants them to match lyric color (which is dynamic)
-    if (tech.type.includes('-')) {
-      return `border-border/50`;
-    }
+  const getLyricGradientColor = (progress: number, alpha?: number) => {
+    const safeProgress = Math.max(0, Math.min(1, progress));
+    const start = { r: 74, g: 162, b: 126 };
+    const end = { r: 198, g: 84, b: 92 };
+    const primary = { r: 79, g: 70, b: 229 };
 
-    return `bg-${baseColor}/15 text-${baseColor} border-${baseColor}/30`;
+    const blend = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);
+
+    const baseR = blend(start.r, end.r, safeProgress);
+    const baseG = blend(start.g, end.g, safeProgress);
+    const baseB = blend(start.b, end.b, safeProgress);
+
+    const themedR = blend(baseR, primary.r, 0.12);
+    const themedG = blend(baseG, primary.g, 0.12);
+    const themedB = blend(baseB, primary.b, 0.12);
+
+    return alpha !== undefined
+      ? `rgba(${themedR}, ${themedG}, ${themedB}, ${alpha})`
+      : `rgb(${themedR}, ${themedG}, ${themedB})`;
   };
 
   const renderColoredLyrics = (line: AnalysisLyricLine) => {
     const chars = [...line.lyrics];
     const charTechMap: (string | null)[] = chars.map(() => null);
-    
+    const gradientRanges = ["逆着光行走", "随缘去吧"]
+      .map((phrase) => {
+        const start = line.lyrics.indexOf(phrase);
+        if (start === -1) return null;
+        return { start, end: start + phrase.length - 1 };
+      })
+      .filter((range): range is { start: number; end: number } => Boolean(range));
+
     line.techniques.forEach((tech) => {
       if (tech.type === "breath") return;
       for (let i = tech.startIdx; i < Math.min(tech.endIdx, chars.length); i++) {
@@ -507,12 +532,28 @@ const VocalAnalysisPage = () => {
         {chars.map((char, i) => {
           const techType = charTechMap[i];
           const accuracy = line.charAccuracy[i] || 0;
-          
-          // Opacity ONLY if techType exists, otherwise full opacity
-          const opacity = techType ? (0.2 + (accuracy / 100) * 0.8) : 1.0;
-          
-          // Use smooth accuracy-based color for lyrics if part of a technique
-          const color = techType ? getAccuracyColor(accuracy) : "inherit";
+          const prevAccuracy = i > 0 ? (line.charAccuracy[i - 1] || accuracy) : accuracy;
+          const nextAccuracy = i < chars.length - 1 ? (line.charAccuracy[i + 1] || accuracy) : accuracy;
+          let blendedAccuracy = Math.round((prevAccuracy * 0.22) + (accuracy * 0.56) + (nextAccuracy * 0.22));
+
+          const tailRatio = chars.length > 1 ? i / (chars.length - 1) : 0;
+          const needsWarmerTail = line.lyrics.includes("逆着光行走") || line.lyrics.includes("指尖弹");
+          if (needsWarmerTail && tailRatio > 0.55) {
+            const tailPenalty = Math.round(((tailRatio - 0.55) / 0.45) * 10);
+            blendedAccuracy = Math.max(0, blendedAccuracy - tailPenalty);
+          }
+
+          let color = techType ? getAccuracyColor(blendedAccuracy) : "inherit";
+          if (techType && gradientRanges.length > 0) {
+            const matchedRange = gradientRanges.find((range) => i >= range.start && i <= range.end);
+            if (matchedRange) {
+              const total = Math.max(1, matchedRange.end - matchedRange.start);
+              const progress = (i - matchedRange.start) / total;
+              color = getLyricGradientColor(progress);
+            }
+          }
+
+          const opacity = techType ? (0.7 + (blendedAccuracy / 100) * 0.3) : 1.0;
           const isUserBreathError = line.userBreathErrors?.includes(i);
 
           return (
@@ -535,47 +576,71 @@ const VocalAnalysisPage = () => {
 
   return (
     <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
-      {/* Header */}
-      <header className="h-14 border-b border-border flex items-center px-4 gap-3 bg-background/80 backdrop-blur-md z-50 flex-shrink-0">
+      {/* Top bar — vocal notes style */}
+      <header className="h-12 border-b border-border/60 flex items-center px-4 gap-3 bg-background/80 backdrop-blur-md z-50 flex-shrink-0">
         <button
           onClick={() => navigate("/coach")}
-          className="p-1.5 rounded-lg hover:bg-accent transition-colors"
+          className="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-primary" />
-          <h1 className="text-sm font-semibold">唱功分析详情</h1>
+        <div className="flex items-center gap-1.5">
+          <BookOpen className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs font-semibold tracking-wide text-foreground/80">唱功分析</span>
+          <span className="text-[10px] text-muted-foreground/60 font-normal">Vocal Analysis</span>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          <Button 
-            variant={isFavorited ? "secondary" : "ghost"} 
-            size="sm"
+        <div className="ml-auto">
+          <button
             onClick={handleFavorite}
-            className={isFavorited ? "text-yellow-500" : ""}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+              isFavorited
+                ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/30"
+                : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+            }`}
           >
-            <Star className={`w-4 h-4 ${isFavorited ? "fill-current" : ""}`} /> 收藏
-          </Button>
+            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-current" : ""}`} />
+            {isFavorited ? "已收藏" : "收藏"}
+          </button>
         </div>
       </header>
 
-      {/* Song info (Consistent with VocalNotesPage) */}
-      <div className="px-6 py-4 border-b border-border bg-card flex-shrink-0">
-        <div className="flex items-center gap-4 max-w-5xl mx-auto">
-          <div className="w-14 h-14 rounded-xl bg-gradient-primary flex items-center justify-center flex-shrink-0">
-            <Music className="w-7 h-7 text-primary-foreground" />
+      {/* Song Hero — vocal notes style */}
+      <div className="relative flex-shrink-0 overflow-hidden border-b border-border/60">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/8 to-background pointer-events-none" />
+        <div className="relative flex items-center gap-4 px-6 py-4 max-w-5xl mx-auto">
+          <div className="relative flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
+              <Music className="w-8 h-8 text-primary-foreground" />
+            </div>
+            {isPlaying && (
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-success flex items-center justify-center shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-success-foreground animate-pulse" />
+              </span>
+            )}
           </div>
-          <div>
-            <h2 className="font-semibold">起风了 (我的练唱)</h2>
-            <p className="text-sm text-muted-foreground">对比参考：买辣椒也用券 · 唱功分析</p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold tracking-tight leading-tight">起风了（我的练唱）</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">对比参考：买辣椒也用券 · 唱功分析</p>
+            <div className="flex items-center gap-2 mt-2">
+              {['混声', '颤音', '假声', '滑音'].map((tag) => (
+                <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium border border-primary/15">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="ml-auto p-3 rounded-full bg-gradient-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-glow"
+            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ${
+              isPlaying
+                ? "bg-foreground text-background shadow-foreground/20"
+                : "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-primary/30 hover:shadow-primary/50 hover:scale-105"
+            }`}
           >
-            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
           </button>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       </div>
 
       <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth snap-y snap-mandatory">
@@ -614,25 +679,23 @@ const VocalAnalysisPage = () => {
                               return sortedTechs.map((tech, tIdx) => {
                                 const offsetEm = tech.startIdx * 1.05;
                                 const isSelected = selectedTechnique === tech;
-                                const isTransition = tech.type.includes('-');
-                                const dynamicColor = isTransition ? getAccuracyColor(tech.accuracy) : undefined;
-                                const dynamicBg = isTransition ? getAccuracyColor(tech.accuracy, 0.15) : undefined;
-                                const dynamicBorder = isTransition ? getAccuracyColor(tech.accuracy, 0.3) : undefined;
-                                
+                                const startAccuracy = Math.max(0, tech.accuracy + 16);
+                                const endAccuracy = Math.max(0, tech.accuracy - 16);
+                                const tagTextColor = getAccuracyColor(tech.accuracy);
+                                const tagStartBg = getAccuracyColor(startAccuracy, 0.22);
+                                const tagEndBg = getAccuracyColor(endAccuracy, 0.22);
+                                const tagBorder = getAccuracyColor(tech.accuracy, 0.38);
+
                                 return (
                                   <button
                                     key={tIdx}
                                     onClick={(e) => handleTechniqueSelect(e, tech)}
-                                    className={`absolute inline-flex items-center px-1.5 py-0 rounded text-[10px] font-semibold border transition-all ${
-                                      isSelected 
-                                        ? "opacity-100 z-10" 
-                                        : "opacity-80 hover:opacity-100"
-                                    } ${getTechniqueTagClasses(tech, isSelected)}`}
-                                    style={{ 
+                                    className={`absolute ${getTechniqueTagClasses(tech, isSelected)}`}
+                                    style={{
                                       left: `${offsetEm}em`,
-                                      backgroundColor: dynamicBg,
-                                      color: dynamicColor,
-                                      borderColor: dynamicBorder
+                                      color: tagTextColor,
+                                      borderColor: tagBorder,
+                                      backgroundImage: `linear-gradient(90deg, ${tagStartBg} 0%, ${tagEndBg} 100%)`
                                     }}
                                   >
                                     {tech.cn}
@@ -666,12 +729,12 @@ const VocalAnalysisPage = () => {
                 <div className="flex items-center justify-between px-2">
                   <div className="flex items-center gap-4">
                     <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[10px] uppercase tracking-tighter">
-                      Pitch Analysis
+                      音高示意
                     </Badge>
-                    <span className="text-[10px] text-muted-foreground font-mono">Real-time Feedback</span>
+                    <span className="text-[10px] text-muted-foreground font-mono">实时反馈</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground">Accuracy</span>
+                    <span className="text-[10px] text-muted-foreground">达成度</span>
                     <span className="text-xs font-bold text-success">92%</span>
                   </div>
                 </div>
@@ -738,10 +801,10 @@ const VocalAnalysisPage = () => {
                 transition={{ repeat: Infinity, duration: 2 }}
                 className="flex flex-col items-end gap-2"
               >
-                <div className="px-4 py-2 rounded-2xl bg-primary/20 border border-primary/40 backdrop-blur-xl shadow-glow-sm group-hover:bg-primary/30 transition-all flex items-center gap-3">
+                <div className="px-4 py-2 rounded-2xl bg-background/55 supports-[backdrop-filter]:bg-background/45 border border-white/35 backdrop-blur-2xl ring-1 ring-white/20 shadow-[0_10px_30px_hsl(var(--primary)/0.18)] group-hover:bg-background/70 transition-all flex items-center gap-3">
                   <div className="flex flex-col items-end">
                     <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] leading-none mb-1">Next Phase</span>
-                    <span className="text-[11px] font-bold text-primary-foreground whitespace-nowrap">解锁下一步练习建议</span>
+                    <span className="text-[11px] font-bold text-foreground whitespace-nowrap">解锁下一步练习建议</span>
                   </div>
                   <div className="w-8 h-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform">
                     <ArrowDown className="w-4 h-4" />
@@ -1090,7 +1153,7 @@ const VocalAnalysisPage = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-px bg-primary/60" />
                   <Trophy className="w-6 h-6 text-yellow-500 drop-shadow-sm" />
-                  <Badge variant="outline" className="bg-primary/20 text-primary-foreground border-primary/50 text-xs uppercase tracking-[0.4em] px-8 py-2 rounded-full font-black shadow-glow-sm">
+                  <Badge variant="outline" className="bg-card text-primary border-primary/35 text-xs uppercase tracking-[0.4em] px-8 py-2 rounded-full font-black shadow-[0_8px_20px_hsl(var(--primary)/0.14)]">
                     LEVEL UP PHASE
                   </Badge>
                   <div className="w-8 h-px bg-primary/60" />
